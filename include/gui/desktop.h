@@ -10,17 +10,17 @@ namespace bljOS{
     namespace gui{
         class Desktop : public CompositeWidget, public bljOS::drivers::MouseEventHandler{
         protected:
-            bljOS::common::uint32_t MouseX;
-            bljOS::common::uint32_t MouseY;
-
+            bljOS::common::uint32_t mouseX, mouseY;
         public:
-            Desktop(bljOS::common::int32_t w, bljOS::common::int32_t h, bljOS::common::uint8_t r, bljOS::common::uint8_t g, bljOS::common::uint8_t b);
-            ~Desktop();
+            Desktop(bljOS::common::int32_t width, bljOS::common::int32_t height, bljOS::common::uint32_t color);
 
-            void Draw(bljOS::common::GraphicsContext* gc);
-            void OnMouseDown(bljOS::common::uint8_t buttons);
-            void OnMouseUp(bljOS::common::uint8_t buttons);
-            void OnMouseMove(int x, int y);
+            virtual void draw(bljOS::common::GraphicsContext* gc);
+            virtual bool getRedraw();
+            virtual void setRedraw(bool redraw);
+            void drawToolbar(bljOS::common::GraphicsContext* gc, bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::int32_t width, bljOS::common::int32_t height, bljOS::common::uint32_t color);
+            virtual void onMouseDown(bljOS::common::uint8_t buttons);
+            virtual void onMouseUp(bljOS::common::uint8_t buttons);
+            virtual void onMouseMove(int x, int y);
         };
     }
 }

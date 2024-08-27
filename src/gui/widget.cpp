@@ -2,134 +2,121 @@
 
 using namespace bljOS;
 using namespace bljOS::common;
+using namespace bljOS::drivers;
 using namespace bljOS::gui;
 
-Widget::Widget(Widget* parent,int32_t x,int32_t y,int32_t w,int32_t h,uint8_t r,uint8_t g,uint8_t b): KeyboardEventHandler(){
+Widget::Widget(Widget* parent, int32_t x, int32_t y, int32_t width, int32_t height, uint32_t color){
     this->parent = parent;
     this->x = x;
     this->y = y;
-    this->w = w;
-    this->h = h;
-    this->r = r;
-    this->g = g;
-    this->b = b;
-    this->Focussable = true;
+    this->width = width;
+    this->height = height;
+    this->color = color;
+    this->focussable = true;
+    this->redraw = false;
 }
 
-Widget::~Widget(){
-
-}
-
-void Widget::GetFocus(Widget* widget){
+void Widget::getFocus(Widget* widget){
     if(parent!=0)
-        parent->GetFocus(widget);
+        parent->getFocus(widget);
 }
 
-void Widget::ModelToScreen(int32_t &x, int32_t &y){
+void Widget::modelToScreen(int32_t &x, int32_t &y){
     if(parent!=0)
-        parent->ModelToScreen(x,y);
+        parent->modelToScreen(x, y);
     x += this->x;
     y += this->y;
 }
 
-void Widget::Draw(GraphicsContext* gc){
+bool Widget::containsCoordinate(int32_t x, int32_t y){
+    return this->x <= x && x < this->x + this->width && this->y <= y && y<this->y + this->height;
+}
+
+void Widget::draw(GraphicsContext* gc){
     int X = 0;
     int Y = 0;
-    ModelToScreen(X,Y);
-    gc->FillRectangle(X,Y,w,h,r,g,b);
+    modelToScreen(X,Y);
+    gc->fillRectangle(X, Y, width, height, color);
 }
 
-void Widget::OnMouseDown(int32_t x, int32_t y, uint8_t buttton){
-    if(Focussable)
-        GetFocus(this);
+void Widget::onMouseDown(int32_t x, int32_t y, uint8_t buttton){
+    if(focussable)
+        getFocus(this);
 }
 
-bool Widget::ContainsCoordinate(int32_t x, int32_t y){
-    return this->x <= x && x < this->x + this->w && this->y <= y && y<this->y + this->h;
-}
-
-void Widget::OnMouseUp(int32_t x, int32_t y, uint8_t buttton){
-
-}
-
-void Widget::OnMouseMove(int32_t oldx, int32_t oldy, int32_t newx, int32_t newy){
-
-}
-
-CompositeWidget::CompositeWidget(Widget* parent,int32_t x,int32_t y,int32_t w,int32_t h,uint8_t r,uint8_t g,uint8_t b): Widget(parent,x,y,w,h,r,g,b){
+CompositeWidget::CompositeWidget(Widget* parent, int32_t x, int32_t y, int32_t width, int32_t height, uint32_t color):Widget(parent, x, y, width, height, color){
     focussedChild = 0;
     numChildren = 0;
 }
 
-CompositeWidget::~CompositeWidget(){
-
+void CompositeWidget::getFocus(Widget* widget){
+    this->focussedChild = widget;
+    if(parent!=0)
+        parent->getFocus(this);
 }
 
-bool CompositeWidget::AddChild(Widget* child){
+bool CompositeWidget::addChild(Widget* child){
     if(numChildren >= 100)
         return false;
     children[numChildren++] = child;
     return true;
 }
 
-void CompositeWidget::GetFocus(Widget* widget){
-    this->focussedChild = widget;
-    if(parent!=0)
-        parent->GetFocus(this);
+void CompositeWidget::draw(GraphicsContext* gc){
+    Widget::draw(gc);
+    for(int i=numChildren-1;i>=0;i--)
+        children[i]->draw(gc);
 }
 
-void CompositeWidget::Draw(GraphicsContext* gc){
-    Widget::Draw(gc);
-    for(int i=numChildren - 1;i>=0;i--)
-        children[i]->Draw(gc);
-}
-
-void CompositeWidget::OnMouseDown(int32_t x, int32_t y, uint8_t buttton){
-    for(int i=0;i<numChildren;i++){
-        if(children[i]->ContainsCoordinate(x - this->x, y - this->y)){
-            children[i]->OnMouseDown(x - this->x, y - this->y, buttton);
+void CompositeWidget::onMouseDown(int32_t x, int32_t y, uint8_t button){
+    for(int i=0;i<numChildren;i++)
+        if(children[i]->containsCoordinate(x - this->x, y - this->y)){
+            children[i]->onMouseDown(x - this->x, y - this->y, button);
             break;
         }
-    }
 }
 
-
-void CompositeWidget::OnMouseUp(int32_t x, int32_t y, uint8_t buttton){
-    for(int i=0;i<numChildren;i++){
-        if(children[i]->ContainsCoordinate(x - this->x, y - this->y)){
-            children[i]->OnMouseUp(x - this->x, y - this->y, buttton);
+void CompositeWidget::onMouseUp(int32_t x, int32_t y, uint8_t button){
+    for(int i=0;i<numChildren;i++)
+        if(children[i]->containsCoordinate(x - this->x, y - this->y)){
+            children[i]->onMouseUp(x - this->x, y - this->y, button);
             break;
         }
-    }
 }
 
-void CompositeWidget::OnMouseMove(int32_t oldx, int32_t oldy, int32_t newx, int32_t newy){
-    int firstchild = -1;
-    for(int i=0;i<numChildren;i++){
-        if(children[i]->ContainsCoordinate(oldx - this->x, oldy - this->y)){
-            children[i]->OnMouseMove(oldx - this->x, oldy - this->y, newx - this->x, newy - this->y);
-            firstchild = i;
+void CompositeWidget::onMouseMove(int32_t oldX, int32_t oldY, int32_t newX, int32_t newY){
+    int firstChild = -1;
+    for(int i=0;i<numChildren;i++)
+        if(children[i]->containsCoordinate(oldX - this->x, oldY - this->y)){
+            children[i]->onMouseMove(oldX - this->x, oldY - this->y, newX - this->x, newY - this->y);
+            firstChild = i;
             break;
         }
-    }
-    for(int i=0;i<numChildren;i++){
-        if(children[i]->ContainsCoordinate(newx - this->x, newy - this->y)){
-            if(firstchild!=i)
-                children[i]->OnMouseMove(oldx - this->x, oldy - this->y,newx - this->x, newy - this->y);
+    for(int i=0;i<numChildren;i++)
+        if(children[i]->containsCoordinate(newX - this->x, newY - this->y)){
+            if(firstChild!=i)
+                children[i]->onMouseMove(oldX - this->x, oldY - this->y,newX - this->x, newY - this->y);
             break;
         }
-    }
 }
 
-void CompositeWidget::OnKeyDown(char str){
-    if(focussedChild!=0){
-        focussedChild->OnKeyDown(str);
-    }
+void CompositeWidget::onKeyDown(char key){
+    if(focussedChild!=0)
+        focussedChild->onKeyDown(key);
 }
 
-void CompositeWidget::OnKeyUp(char str){
-     if(focussedChild!=0){
-        focussedChild->OnKeyUp(str);
-    }
+void CompositeWidget::onKeyUp(char key){
+    if(focussedChild!=0)
+        focussedChild->onKeyUp(key);
 }
+
+
+bool CompositeWidget::getRedraw(){
+    return this->redraw;
+}
+
+void CompositeWidget::setRedraw(bool redraw){
+    this->redraw = redraw;
+}
+
 

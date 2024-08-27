@@ -9,13 +9,13 @@ namespace bljOS{
     namespace gui{
         class Window : public CompositeWidget{
         protected:
-            bool Dragging;
+            bool dragging;
         public:
-            Window(Widget* parent,bljOS::common::int32_t x,bljOS::common::int32_t y,bljOS::common::int32_t w,bljOS::common::int32_t h,bljOS::common::uint8_t r,bljOS::common::uint8_t g,bljOS::common::uint8_t b);
-            ~Window();
-            void OnMouseDown(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t buttton);
-            void OnMouseUp(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t buttton);
-            void OnMouseMove(bljOS::common::int32_t oldx, bljOS::common::int32_t oldy, bljOS::common::int32_t newx, bljOS::common::int32_t newy);
+            Window(Widget* parent, bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::int32_t width, bljOS::common::int32_t height, bljOS::common::uint32_t color);
+
+            virtual void onMouseDown(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t button);
+            virtual void onMouseUp(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t button);
+            virtual void onMouseMove(bljOS::common::int32_t oldX, bljOS::common::int32_t oldY, bljOS::common::int32_t newX, bljOS::common::int32_t newY);
         };
     }
 }

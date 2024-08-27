@@ -24,8 +24,8 @@ namespace bljOS{
         class KeyboardEventHandler{
         public:
             KeyboardEventHandler();
-            virtual void OnKeyDown(char);
-            virtual void OnKeyUp(char);
+            virtual void onKeyDown(char);
+            virtual void onKeyUp(char);
         };
     }
 }

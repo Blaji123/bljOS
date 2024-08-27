@@ -2,30 +2,28 @@
 
 using namespace bljOS;
 using namespace bljOS::common;
+using namespace bljOS::drivers;
 using namespace bljOS::gui;
 
-Window::Window(Widget* parent,int32_t x,int32_t y,int32_t w,int32_t h,uint8_t r,uint8_t g,uint8_t b):CompositeWidget(parent, x, y, w ,h, r, g, b){
-    Dragging = false;
+Window::Window(Widget* parent, int32_t x, int32_t y, int32_t width, int32_t height, uint32_t color):CompositeWidget(parent, x, y, width, height, color){
+    dragging = false;
 }
 
-Window::~Window(){
-
+void Window::onMouseDown(int32_t x, int32_t y, uint8_t button){
+    dragging = button == 1;
+    CompositeWidget::onMouseDown(x, y, button);
 }
 
-void Window::OnMouseDown(int32_t x, int32_t y, uint8_t buttton){
-    Dragging = buttton == 1;
-    CompositeWidget::OnMouseDown(x,y,buttton);
+void Window::onMouseUp(int32_t x, int32_t y, uint8_t button){
+    dragging = false;
+    CompositeWidget::onMouseUp(x, y, button);
 }
 
-void Window::OnMouseUp(int32_t x, int32_t y, uint8_t buttton){
-    Dragging = false;
-    CompositeWidget::OnMouseUp(x,y,buttton);
-}
-
-void Window::OnMouseMove(int32_t oldx, int32_t oldy, int32_t newx, int32_t newy){
-    if(Dragging){
-        this->x += newx-oldx;
-        this->y = newy-oldy;
+void Window::onMouseMove(int32_t oldX, int32_t oldY, int32_t newX, int32_t newY){
+    if(dragging){
+        this->x += newX - oldX;
+        this->y += newY - oldY;
     }
-    CompositeWidget::OnMouseMove(oldx,oldy,newx, newy);
+
+    CompositeWidget::onMouseMove(oldX, oldY, newX, newY);
 }

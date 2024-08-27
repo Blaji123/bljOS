@@ -7,50 +7,46 @@
 
 namespace bljOS{
     namespace gui{
+
         class Widget : public bljOS::drivers::KeyboardEventHandler{
         protected:
             Widget* parent;
-            bljOS::common::int32_t x;
-            bljOS::common::int32_t y;
-            bljOS::common::int32_t w;
-            bljOS::common::int32_t h;
-
-            bljOS::common::uint8_t r;
-            bljOS::common::uint8_t g;
-            bljOS::common::uint8_t b;
-            bool Focussable;
+            bljOS::common::int32_t x, y;
+            bljOS::common::int32_t width, height;
+            bljOS::common::uint32_t color;
+            bool focussable;
+            bool redraw;
         public:
-            Widget(Widget* parent,bljOS::common::int32_t x,bljOS::common::int32_t y,bljOS::common::int32_t w,bljOS::common::int32_t h,bljOS::common::uint8_t r,bljOS::common::uint8_t g,bljOS::common::uint8_t b);
-            ~Widget();
-            virtual void GetFocus(Widget* widget);
-            virtual void ModelToScreen(bljOS::common::int32_t &x, bljOS::common::int32_t &y);
-            virtual bool ContainsCoordinate(bljOS::common::int32_t x, bljOS::common::int32_t y);
+            Widget(Widget* parent, bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::int32_t width, bljOS::common::int32_t height, bljOS::common::uint32_t color);
 
-            virtual void Draw(bljOS::common::GraphicsContext* gc);
-            virtual void OnMouseDown(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t buttton);
-            virtual void OnMouseUp(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t buttton);
-            virtual void OnMouseMove(bljOS::common::int32_t oldx, bljOS::common::int32_t oldy, bljOS::common::int32_t newx, bljOS::common::int32_t newy);
+            virtual void getFocus(Widget* widget);
+            virtual void modelToScreen(bljOS::common::int32_t &x, bljOS::common::int32_t &y);
+            virtual bool containsCoordinate(bljOS::common::int32_t x, bljOS::common::int32_t y);
+            virtual void draw(bljOS::common::GraphicsContext* gc);
+            virtual void onMouseDown(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t button);
+            virtual void onMouseUp(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t button){}
+            virtual void onMouseMove(bljOS::common::int32_t oldX, bljOS::common::int32_t oldY, bljOS::common::int32_t newX, bljOS::common::int32_t newY){}
         };
 
         class CompositeWidget : public Widget{
-        private:
+        protected:
             Widget* children[100];
             int numChildren;
             Widget* focussedChild;
-
+            bool redraw;
         public:
-            CompositeWidget(Widget* parent,bljOS::common::int32_t x,bljOS::common::int32_t y,bljOS::common::int32_t w,bljOS::common::int32_t h,bljOS::common::uint8_t r,bljOS::common::uint8_t g,bljOS::common::uint8_t b);
-            ~CompositeWidget();
-            virtual void GetFocus(Widget* widget);
-            virtual bool AddChild(Widget* child);
+            CompositeWidget(Widget* parent, bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::int32_t width, bljOS::common::int32_t height, bljOS::common::uint32_t color);
 
-            virtual void Draw(bljOS::common::GraphicsContext* gc);
-            virtual void OnMouseDown(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t buttton);
-            virtual void OnMouseUp(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t buttton);
-            virtual void OnMouseMove(bljOS::common::int32_t oldx, bljOS::common::int32_t oldy, bljOS::common::int32_t newx, bljOS::common::int32_t newy);
-
-            virtual void OnKeyDown(char str);
-            virtual void OnKeyUp(char str);
+            virtual void getFocus(Widget* widget);
+            virtual bool addChild(Widget* child);
+            virtual void draw(bljOS::common::GraphicsContext* gc);
+            virtual void onMouseDown(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t button);
+            virtual void onMouseUp(bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::uint8_t button);
+            virtual void onMouseMove(bljOS::common::int32_t oldX, bljOS::common::int32_t oldY, bljOS::common::int32_t newX, bljOS::common::int32_t newY);
+            virtual void onKeyDown(char key);
+            virtual void onKeyUp(char key);
+            virtual bool getRedraw();
+            virtual void setRedraw(bool redraw);
         };
     }
 }

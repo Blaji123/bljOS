@@ -11,11 +11,11 @@ MouseEventHandler::MouseEventHandler(){}
 
 void MouseEventHandler::OnActivate(){}
 
-void MouseEventHandler::OnMouseDown(uint8_t buttons){}
+void MouseEventHandler::onMouseDown(uint8_t buttons){}
 
-void MouseEventHandler::OnMouseUp(uint8_t buttons){}
+void MouseEventHandler::onMouseUp(uint8_t buttons){}
 
-void MouseEventHandler::OnMouseMove(int x, int y){}
+void MouseEventHandler::onMouseMove(int x, int y){}
 
 MouseDriver::MouseDriver(InterruptManager* manager, MouseEventHandler* handler):InterruptHandler(manager, 0x2C), dataport(0x60), commandport(0x64){
     this->handler = handler;
@@ -51,14 +51,14 @@ uint32_t MouseDriver::handleInterrupt(uint32_t esp){
 
     offset = (offset + 1) % 3;
     if(offset == 0){
-        handler->OnMouseMove((int8_t)buffer[1], -((int8_t)buffer[2]));
+        handler->onMouseMove((int8_t)buffer[1], -((int8_t)buffer[2]));
 
         for(uint8_t i=0;i<3;i++){
             if((buffer[0] & (0x01 << i))!= (buttons & (0x01<<i))){
                 if(buttons & (0x01<<i))
-                    handler->OnMouseUp(i+1);
+                    handler->onMouseUp(i+1);
                 else
-                    handler->OnMouseDown(i+1);
+                    handler->onMouseDown(i+1);
             }
 
         }

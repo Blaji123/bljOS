@@ -13,9 +13,9 @@ namespace bljOS{
 
             MouseEventHandler();
             virtual void OnActivate();
-            virtual void OnMouseDown(bljOS::common::uint8_t buttons);
-            virtual void OnMouseUp(bljOS::common::uint8_t buttons);
-            virtual void OnMouseMove(int x, int y);
+            virtual void onMouseDown(bljOS::common::uint8_t buttons);
+            virtual void onMouseUp(bljOS::common::uint8_t buttons);
+            virtual void onMouseMove(int x, int y);
         };
 
 

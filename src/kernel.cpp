@@ -23,8 +23,6 @@
 #include <filesystem/msdospart.h>
 #include <common/multiboot.h>
 
-// #define GRAPHICSMODE
-
 using namespace bljOS;
 using namespace bljOS::common;
 using namespace bljOS::drivers;
@@ -82,7 +80,7 @@ void printfHex32(uint32_t key)
 
 class PrintfKeyboardEventHandler : public KeyboardEventHandler{
 public:
-    void OnKeyDown(char c){
+    void onKeyDown(char c){
         char* foo = " ";
         foo[0] = c;
         printf(foo);
@@ -100,7 +98,7 @@ public:
         videoMemory[80*y+x] = ((videoMemory[80*y+x] & 0xF000) >> 4) | ((videoMemory[80*y+x] & 0x0F00) << 4) | ((videoMemory[80*y+x] & 0x00FF));
     }
 
-    void OnMouseMove(int xoffset, int yoffset){
+    void onMouseMove(int xoffset, int yoffset){
         static uint16_t* videoMemory = (uint16_t*)0xb8000;
         videoMemory[80*y+x] = ((videoMemory[80*y+x] & 0xF000) >> 4) | ((videoMemory[80*y+x] & 0x0F00) << 4) | ((videoMemory[80*y+x] & 0x00FF));
 
@@ -183,10 +181,6 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     printf("Multiboot flags: 0x");
     printfHex32(mbInfo->flags);
     printf("\n");
-    if(mbInfo->flags & (1<<12)){
-        VideoGraphicsArray vga(mbInfo);
-        vga.putStr((uint8_t*)"hello world!", 2, 2, 0xd79921);
-    }
 
     /*testing memorymanager*/
     /*
@@ -219,20 +213,25 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
 
     DriverManager drvManager;
 
-#ifdef GRAPHICSMODE
+    VideoGraphicsArray vga(mbInfo);
+    Desktop desktop(1024, 768, 0x83a598);
     KeyboardDriver keyboard(&interrupts, &desktop);
-#else
-    PrintfKeyboardEventHandler kbhandler;
-    KeyboardDriver keyboard(&interrupts, &kbhandler);
-#endif
+    MouseDriver mouse(&interrupts, &desktop);
+    Window win1(&desktop, 10, 10, 20, 20, 0x98971a);
+    desktop.addChild(&win1);
+    Window win2(&desktop, 40, 15, 30, 30, 0x98971a);
+    desktop.addChild(&win2);
+    desktop.draw(&vga);
+
+//     PrintfKeyboardEventHandler kbhandler;
+//     KeyboardDriver keyboard(&interrupts, &kbhandler);
+
     drvManager.AddDriver(&keyboard);
 
-#ifdef GRAPHICSMODE
-    MouseDriver mouse(&interrupts, &desktop);
-#else
-    MouseToConsole mousehandler;
-    MouseDriver mouse(&interrupts, &mousehandler);
-#endif
+
+//     MouseToConsole mousehandler;
+//     MouseDriver mouse(&interrupts, &mousehandler);
+
     drvManager.AddDriver(&mouse);
 
     PeripheralComponentInterconnectController PCIController;
@@ -299,5 +298,9 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     */
 
     while(1){
+        if(desktop.getRedraw()){
+            desktop.draw(&vga);
+            desktop.setRedraw(false);
+        }
     }
 }

@@ -2,49 +2,70 @@
 
 using namespace bljOS;
 using namespace bljOS::common;
+using namespace bljOS::drivers;
 using namespace bljOS::gui;
 
-Desktop::Desktop(int32_t w, int32_t h, uint8_t r, uint8_t g, uint8_t b):CompositeWidget(0, 0, 0, w,h,r,g,b), MouseEventHandler(){
-    MouseX = w/2;
-    MouseY = h/2;
+Desktop::Desktop(int32_t width, int32_t height, uint32_t color):CompositeWidget(0, 0, 0, width, height, color), MouseEventHandler(){
+    mouseX = width/2;
+    mouseY = height/2;
 }
 
-Desktop::~Desktop(){
-
+void Desktop::drawToolbar(GraphicsContext* gc, int32_t x, int32_t y, int32_t width, int32_t height, uint32_t color){
+    gc->drawLine(x, y - 1, 1024, y -1, 0x1d2021);
+    gc->fillRectangle(x, y, width, height, color);
 }
 
-void Desktop::Draw(GraphicsContext* gc){
-    CompositeWidget::Draw(gc);
+void Desktop::draw(GraphicsContext* gc){
+    CompositeWidget::draw(gc);
+    drawToolbar(gc, 0, 735, 1024, 34, 0x3c3836);
+    gc->putPixel(mouseX, mouseY, 0xFFFFFF); // Tip of the arrow (white pixel)
+    gc->putPixel(mouseX + 1, mouseY + 1, 0xFFFFFF);
+    gc->putPixel(mouseX + 2, mouseY + 2, 0xFFFFFF);
+    gc->putPixel(mouseX + 3, mouseY + 3, 0xFFFFFF);
+    gc->putPixel(mouseX + 4, mouseY + 4, 0xFFFFFF);
+    gc->putPixel(mouseX + 5, mouseY + 5, 0xFFFFFF);
+    gc->putPixel(mouseX + 6, mouseY + 6, 0xFFFFFF);
 
-    for(int i=0; i<4; i++){
-        gc->PutPixel(MouseX-i, MouseY, 0xFF, 0xFF, 0xFF);
-        gc->PutPixel(MouseX+i, MouseY, 0xFF, 0xFF, 0xFF);
-        gc->PutPixel(MouseX, MouseY-i, 0xFF, 0xFF, 0xFF);
-        gc->PutPixel(MouseX, MouseY+i, 0xFF, 0xFF, 0xFF);
-    }
+    gc->putPixel(mouseX + 1, mouseY, 0x000000); // Outline of the arrow (black pixel)
+    gc->putPixel(mouseX + 2, mouseY + 1, 0x000000);
+    gc->putPixel(mouseX + 3, mouseY + 2, 0x000000);
+    gc->putPixel(mouseX + 4, mouseY + 3, 0x000000);
+    gc->putPixel(mouseX + 5, mouseY + 4, 0x000000);
+    gc->putPixel(mouseX + 6, mouseY + 5, 0x000000);
+    gc->putPixel(mouseX + 7, mouseY + 6, 0x000000);
 }
 
-void Desktop::OnMouseDown(uint8_t buttons){
-    CompositeWidget::OnMouseDown(MouseX, MouseY, buttons);
+bool Desktop::getRedraw(){
+    return CompositeWidget::getRedraw();
 }
 
-void Desktop::OnMouseUp(uint8_t buttons){
-    CompositeWidget::OnMouseUp(MouseX, MouseY, buttons);
+void Desktop::setRedraw(bool redraw){
+    CompositeWidget::setRedraw(redraw);
 }
 
-void Desktop::OnMouseMove(int x, int y){
+
+void Desktop::onMouseDown(uint8_t buttons){
+    CompositeWidget::onMouseDown(mouseX, mouseY, buttons);
+}
+
+void Desktop::onMouseUp(uint8_t buttons){
+    CompositeWidget::onMouseUp(mouseX, mouseY, buttons);
+}
+
+void Desktop::onMouseMove(int x, int y){
     x /= 4;
     y /= 4;
-    int32_t newMouseX = MouseX + x;
+    int32_t newMouseX = mouseX + x;
     if(newMouseX < 0) newMouseX = 0;
-    if(newMouseX >= w) newMouseX = w-1;
+    if(newMouseX >= width) newMouseX = width - 1;
 
-    int32_t newMouseY = MouseY + y;
+    int32_t newMouseY = mouseY + y;
     if(newMouseY < 0) newMouseY = 0;
-    if(newMouseY >= h) newMouseY = h-1;
+    if(newMouseY >= height) newMouseY = height - 1;
 
-    CompositeWidget::OnMouseMove(MouseX, MouseY,newMouseX,newMouseY);
+    setRedraw(true);
+    CompositeWidget::onMouseMove(mouseX, mouseY, newMouseX, newMouseY);
 
-    MouseX = newMouseX;
-    MouseY = newMouseY;
+    mouseX = newMouseX;
+    mouseY = newMouseY;
 }
