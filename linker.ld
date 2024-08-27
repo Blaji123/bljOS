@@ -8,7 +8,8 @@ SECTIONS
 
     .text :
     {
-        *(.multiboot)
+    . = ALIGN(8);
+    KEEP(*(.multiboot))
         *(.text*)
         *(.rodata)
     }

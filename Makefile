@@ -1,5 +1,4 @@
 
-
 GPPPARAMS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings
 ASPARAMS = --32
 LDPARAMS = -melf_i386
@@ -53,10 +52,10 @@ mykernel.iso: mykernel.bin
 	cp $< iso/boot/
 	echo 'set timeout=0' > iso/boot/grub/grub.cfg
 	echo 'set default=0' >> iso/boot/grub/grub.cfg
-	echo '' >> iso/boot/grub/grub.cfg
-	echo 'menuentry "bljOS" {' >> iso/boot/grub/grub.cfg
 	echo 'set gfxmode=1024x768x32' >> iso/boot/grub/grub.cfg
 	echo 'set gfxpayload=keep' >> iso/boot/grub/grub.cfg
+	echo '' >> iso/boot/grub/grub.cfg
+	echo 'menuentry "bljOS" {' >> iso/boot/grub/grub.cfg
 	echo '  multiboot /boot/mykernel.bin' >> iso/boot/grub/grub.cfg
 	echo '  boot' >> iso/boot/grub/grub.cfg
 	echo '}' >> iso/boot/grub/grub.cfg

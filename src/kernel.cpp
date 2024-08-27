@@ -173,33 +173,19 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     /*testing printf*/
     printf("Hello world!\n");
 
-    GlobalDescriptorTable gdt;
     MultibootInfo* mbInfo = (MultibootInfo*)multibootStructure;
+    GlobalDescriptorTable gdt;
 
     uint32_t* memupper = (uint32_t*)((size_t)mbInfo->mem_upper);
     size_t heap = 10*1024*1024;
     MemoryManager memoryManager(heap, (*memupper)*1024 - heap - 10*1024);
 
-
+    printf("Multiboot flags: 0x");
+    printfHex32(mbInfo->flags);
+    printf("\n");
     if(mbInfo->flags & (1<<12)){
-        uint32_t* framebuffer = (uint32_t*)mbInfo->framebuffer_addr;
-        uint32_t width = mbInfo->framebuffer_width;
-        uint32_t height = mbInfo->framebuffer_height;
-        uint32_t pitch = mbInfo->framebuffer_pitch;
-        uint8_t bpp = mbInfo->framebuffer_bpp;
-
-        printf("Framebuffer info:\n");
-        printf(" Address: 0x");
-        printfHex32((mbInfo->framebuffer_addr >> 32));
-        printfHex32((mbInfo->framebuffer_addr & 0xFFFFFFFF));
-        printf("\n Width:");
-        printfHex32(width);
-        printf("\n Height:");
-        printfHex32(height);
-        printf("\n Pitch:");
-        printfHex32(pitch);
-        printf("\n bpp:");
-        printfHex32(bpp);
+        VideoGraphicsArray vga(mbInfo);
+        vga.putStr((uint8_t*)"hello world!", 2, 2, 0xd79921);
     }
 
     /*testing memorymanager*/
@@ -231,10 +217,6 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
 
     SyscallHandler syscalls(&interrupts, 0x80);
 
-#ifdef GRAPHICSMODE
-    Desktop desktop(320, 200, 0x00, 0x00, 0xA8);
-#endif
-
     DriverManager drvManager;
 
 #ifdef GRAPHICSMODE
@@ -256,20 +238,7 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     PeripheralComponentInterconnectController PCIController;
     PCIController.SelectDrivers(&drvManager, &interrupts);
 
-#ifdef GRAPHICSMODE
-    VideoGraphicsArray vga;
-#endif
-
     drvManager.ActivateAll();
-
-#ifdef GRAPHICSMODE
-    /*testing gui*/
-    vga.SetMode(320, 200, 8);
-    Window win1(&desktop, 10, 10, 20, 20, 0xA8, 0x00, 0x00);
-    desktop.AddChild(&win1);
-    Window win2(&desktop, 40, 15, 30, 30, 0x00, 0xA8, 0x00);
-    desktop.AddChild(&win2);
-#endif
 
     /*testing ata & fat32 */
     /*
@@ -330,8 +299,5 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     */
 
     while(1){
-        #ifdef GRAPHICSMODE
-            desktop.Draw(&vga);
-        #endif
     }
 }
