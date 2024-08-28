@@ -39,7 +39,7 @@ uint32_t KeyboardDriver::handleInterrupt(uint32_t esp){
 
     if(key < 0x80 ){
         switch(key){
-             case 0x02: handler->onKeyDown('1'); break;
+            case 0x02: handler->onKeyDown('1'); break;
             case 0x03: handler->onKeyDown('2'); break;
             case 0x04: handler->onKeyDown('3'); break;
             case 0x05: handler->onKeyDown('4'); break;

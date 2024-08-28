@@ -22,6 +22,7 @@
 #include <net/tcp.h>
 #include <filesystem/msdospart.h>
 #include <common/multiboot.h>
+#include <drivers/rtc.h>
 
 using namespace bljOS;
 using namespace bljOS::common;
@@ -30,6 +31,8 @@ using namespace bljOS::hardwarecommunication;
 using namespace bljOS::gui;
 using namespace bljOS::net;
 using namespace bljOS::filesystem;
+
+VideoGraphicsArray *vgap;
 
 void printf(char* str){
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
@@ -68,6 +71,15 @@ void printfHex(uint8_t key){
     foo[0] = hex[(key >> 4) & 0xF];
     foo[1] = hex[key & 0xF];
     printf(foo);
+}
+
+void printfHex(uint8_t key, int32_t x, int32_t y, uint32_t color) {
+    char* foo = "00";
+    char* hex = "0123456789ABCDEF";
+
+    foo[0] = hex[(key >> 4) & 0xF];
+    foo[1] = hex[key & 0xF];
+    vgap->putStr((uint8_t*)foo, x, y, color);
 }
 
 void printfHex32(uint32_t key)
@@ -209,6 +221,10 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
 
     InterruptManager interrupts(0x20, &gdt, &taskManager);
 
+    RealTimeClock rtc;
+    ProgrammableIntervalTimer pit(1000);
+    RTCHandler rtcHandler(&rtc, &pit);
+
     SyscallHandler syscalls(&interrupts, 0x80);
 
     DriverManager drvManager;
@@ -217,11 +233,10 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     Desktop desktop(1024, 768, 0x83a598);
     KeyboardDriver keyboard(&interrupts, &desktop);
     MouseDriver mouse(&interrupts, &desktop);
-    Window win1(&desktop, 10, 10, 20, 20, 0x98971a);
-    desktop.addChild(&win1);
-    Window win2(&desktop, 40, 15, 30, 30, 0x98971a);
-    desktop.addChild(&win2);
     desktop.draw(&vga);
+    vgap = &vga;
+    SystemTime systemTime = rtcHandler.getSystemTime();
+    printfHex(systemTime.months, 30, 30, 0xebdbb2);
 
 //     PrintfKeyboardEventHandler kbhandler;
 //     KeyboardDriver keyboard(&interrupts, &kbhandler);
