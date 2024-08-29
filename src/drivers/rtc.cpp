@@ -2,23 +2,16 @@
 
 using namespace bljOS;
 using namespace bljOS::common;
+using namespace bljOS::hardwarecommunication;
 using namespace bljOS::drivers;
 
-RealTimeClock::RealTimeClock():rtcPort(0x70),cmosPort(0x71){
-    asm("cli");
-    rtcPort.write(0x8A);
-    cmosPort.write(0x20);
-    asm("sti");
+void printf(uint8_t* str, int32_t x, int32_t y, uint32_t color);
+void printfHex(uint8_t key, int32_t x, int32_t y, uint32_t color);
 
-    asm("cli");
-    rtcPort.write(0x8B);
-    uint8_t prev = cmosPort.read();
-    rtcPort.write(0x8B);
-    cmosPort.write(prev | 0x40);
-    asm("sti");
+RTCEventHandler::RTCEventHandler(){}
 
-    rtcPort.write(0x0C);
-    cmosPort.read();
+RealTimeClock::RealTimeClock(InterruptManager* manager, RTCEventHandler* handler):InterruptHandler(manager, 0x28),handler(handler),rtcPort(0x70),cmosPort(0x71),lastMinute(0){
+
 }
 
 uint8_t RealTimeClock::readRTC(uint8_t reg){
@@ -42,72 +35,39 @@ DateTime RealTimeClock::readCurrentTime(){
     return dateTime;
 }
 
-void RealTimeClock::writeRTC(uint8_t reg, uint8_t value){
-    rtcPort.write(reg);
-    cmosPort.write(value);
-}
+uint32_t RealTimeClock::handleInterrupt(uint32_t esp){
+    rtcPort.write(0x0C);
+    cmosPort.read();
 
-ProgrammableIntervalTimer::ProgrammableIntervalTimer(uint32_t frequency):dataPort(0x40), commandPort(0x43){
-    uint32_t divisor = 1193180 / frequency;
-    commandPort.write(0x36);
-    dataPort.write(divisor & 0xFF);
-    dataPort.write(divisor >> 8);
-}
+    DateTime currentTime = readCurrentTime();
 
-void ProgrammableIntervalTimer::updateSystemTime(){
-    systemTime.seconds++;
-    if(systemTime.seconds >= 60){
-        systemTime.seconds = 0;
-        systemTime.minutes++;
-        if(systemTime.minutes >= 60){
-            systemTime.minutes = 0;
-            systemTime.hours++;
-            if(systemTime.hours >= 24){
-                systemTime.hours = 0;
-                systemTime.days++;
-                if(systemTime.days >= 32){
-                    systemTime.days = 1;
-                    systemTime.months++;
-                    if(systemTime.months >= 13){
-                        systemTime.months = 1;
-                        systemTime.years++;
-                    }
-                }
-            }
-        }
+    if(handler!=0 && currentTime.minute != lastMinute){
+        handler->onTimeChange(currentTime);
     }
+
+    lastMinute = currentTime.minute;
+    return esp;
 }
 
-void ProgrammableIntervalTimer::timerHandler(){
-    ticks++;
-    if(ticks%100 == 0){
-        updateSystemTime();
-    }
-}
+void RealTimeClock::Activate(){
+    rtcPort.write(0x8A);
+    cmosPort.write(0x20);
 
-RTCHandler::RTCHandler(RealTimeClock* rtc, ProgrammableIntervalTimer* pit){
-    this->rtc = rtc;
-    this->pit = pit;
+    rtcPort.write(0x8B);
+    uint8_t prev = cmosPort.read();
+    rtcPort.write(0x8B);
+    cmosPort.write(prev | 0x40);
 
-    synchronizeTime();
-}
+    uint8_t rate = 6;
+    rate &= 0x0F;
 
-void RTCHandler::synchronizeTime(){
-    DateTime rtcTime = rtc->readCurrentTime();
-    pit->systemTime.seconds = rtcTime.second;
-    pit->systemTime.minutes = rtcTime.minute;
-    pit->systemTime.hours = rtcTime.hour;
-    pit->systemTime.days = rtcTime.day;
-    pit->systemTime.months = rtcTime.month;
-    pit->systemTime.years = rtcTime.year;
-}
+    rtcPort.write(0x8A);
+    prev = cmosPort.read();
+    rtcPort.write(0x8A);
+    cmosPort.write((prev & 0xF0) | rate);
 
-SystemTime RTCHandler::getSystemTime(){
-    return pit->systemTime;
-}
-
-DateTime RTCHandler::getCurrentDateTime(){
-    return rtc->readCurrentTime();
+    rtcPort.write(0x0C);
+    cmosPort.read();
 }
 
 

@@ -16,8 +16,8 @@ void Desktop::drawToolbar(GraphicsContext* gc, int32_t x, int32_t y, int32_t wid
 }
 
 void Desktop::draw(GraphicsContext* gc){
-    CompositeWidget::draw(gc);
     drawToolbar(gc, 0, 735, 1024, 34, 0x3c3836);
+    CompositeWidget::draw(gc);
     gc->putPixel(mouseX, mouseY, 0xFFFFFF); // Tip of the arrow (white pixel)
     gc->putPixel(mouseX + 1, mouseY + 1, 0xFFFFFF);
     gc->putPixel(mouseX + 2, mouseY + 2, 0xFFFFFF);

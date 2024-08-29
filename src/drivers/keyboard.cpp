@@ -4,7 +4,7 @@ using namespace bljOS::common;
 using namespace bljOS::drivers;
 using namespace bljOS::hardwarecommunication;
 
-void printf(char*);
+void printf(uint8_t* str, int32_t x, int32_t y, uint32_t color);
 void printfHex(uint8_t);
 
 KeyboardEventHandler::KeyboardEventHandler(){}
@@ -85,8 +85,9 @@ uint32_t KeyboardDriver::handleInterrupt(uint32_t esp){
             case 0x1C: handler->onKeyDown('\n'); break;
             case 0x39: handler->onKeyDown(' '); break;
             default:
-                printf("KEYBOARD 0x");
-                printfHex(key);
+            printf((uint8_t*)"here", 20, 20, 0xebdbb2);
+//                 printf("KEYBOARD 0x");
+//                 printfHex(key);
                 break;
         }
     }

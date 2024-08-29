@@ -23,6 +23,7 @@
 #include <filesystem/msdospart.h>
 #include <common/multiboot.h>
 #include <drivers/rtc.h>
+#include <gui/button.h>
 
 using namespace bljOS;
 using namespace bljOS::common;
@@ -65,6 +66,10 @@ void printf(char* str){
     }
 }
 
+void printf(uint8_t* str, int32_t x, int32_t y, uint32_t color){
+    vgap->putStr(str, x, y, color);
+}
+
 void printfHex(uint8_t key){
     char* foo = "00";
     char* hex = "0123456789ABCDEF";
@@ -73,7 +78,7 @@ void printfHex(uint8_t key){
     printf(foo);
 }
 
-void printfHex(uint8_t key, int32_t x, int32_t y, uint32_t color) {
+void printfHex(uint8_t key, int32_t x, int32_t y, uint32_t color){
     char* foo = "00";
     char* hex = "0123456789ABCDEF";
 
@@ -96,6 +101,14 @@ public:
         char* foo = " ";
         foo[0] = c;
         printf(foo);
+    }
+};
+
+class MyRTCEventHandler : public RTCEventHandler {
+public:
+    void onTimeChange(const DateTime& time){
+        // Handle time change
+        printfHex(time.minute, 20, 20, 0xebdbb2);
     }
 };
 
@@ -186,6 +199,14 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     MultibootInfo* mbInfo = (MultibootInfo*)multibootStructure;
     GlobalDescriptorTable gdt;
 
+
+    VideoGraphicsArray vga(mbInfo);
+    Desktop desktop(1024, 735, 0x83a598);
+    TimeButton timeButton(&desktop, 990, 730, 20, 20, 0x83a598, 0xebdbb2);
+    desktop.addChild(&timeButton);
+    desktop.draw(&vga);
+    vgap = &vga;
+
     uint32_t* memupper = (uint32_t*)((size_t)mbInfo->mem_upper);
     size_t heap = 10*1024*1024;
     MemoryManager memoryManager(heap, (*memupper)*1024 - heap - 10*1024);
@@ -221,22 +242,17 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
 
     InterruptManager interrupts(0x20, &gdt, &taskManager);
 
-    RealTimeClock rtc;
-    ProgrammableIntervalTimer pit(1000);
-    RTCHandler rtcHandler(&rtc, &pit);
+
 
     SyscallHandler syscalls(&interrupts, 0x80);
 
     DriverManager drvManager;
 
-    VideoGraphicsArray vga(mbInfo);
-    Desktop desktop(1024, 768, 0x83a598);
     KeyboardDriver keyboard(&interrupts, &desktop);
     MouseDriver mouse(&interrupts, &desktop);
-    desktop.draw(&vga);
-    vgap = &vga;
-    SystemTime systemTime = rtcHandler.getSystemTime();
-    printfHex(systemTime.months, 30, 30, 0xebdbb2);
+    RealTimeClock rtc(&interrupts, &timeButton);
+
+    drvManager.AddDriver(&rtc);
 
 //     PrintfKeyboardEventHandler kbhandler;
 //     KeyboardDriver keyboard(&interrupts, &kbhandler);
