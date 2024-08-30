@@ -24,6 +24,7 @@
 #include <common/multiboot.h>
 #include <drivers/rtc.h>
 #include <gui/button.h>
+#include <gui/toolbar.h>
 
 using namespace bljOS;
 using namespace bljOS::common;
@@ -76,6 +77,19 @@ void printfHex(uint8_t key){
     foo[0] = hex[(key >> 4) & 0xF];
     foo[1] = hex[key & 0xF];
     printf(foo);
+}
+
+void printfDec(uint8_t value, int32_t x, int32_t y, uint32_t color){
+    char buffer[4] = "000"; // A buffer to hold the decimal string representation (max value 255 requires 3 digits + null terminator)
+    int index = 2;          // Start filling from the last digit
+
+    do {
+        buffer[index--] = '0' + (value % 10);  // Get the last digit and place it in the buffer
+        value /= 10;                            // Remove the last digit from the value
+    } while (value > 0);
+
+    // Print the string, skipping any leading '0's
+    vgap->putStr((uint8_t*)&buffer[index + 1], x, y, color);
 }
 
 void printfHex(uint8_t key, int32_t x, int32_t y, uint32_t color){
@@ -199,11 +213,12 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     MultibootInfo* mbInfo = (MultibootInfo*)multibootStructure;
     GlobalDescriptorTable gdt;
 
-
     VideoGraphicsArray vga(mbInfo);
-    Desktop desktop(1024, 735, 0x83a598);
-    TimeButton timeButton(&desktop, 990, 730, 20, 20, 0x83a598, 0xebdbb2);
-    desktop.addChild(&timeButton);
+    Desktop desktop(1024, 768, 0x83a598);
+    Toolbar toolbar(&desktop, 0, 735, 1024, 34, 0x3c3836);
+    desktop.addChild(&toolbar);
+    TimeButton timeButton(&toolbar, 980, 735, 42, 34, 0x3c3836, 0xebdbb2);
+    toolbar.addChild(&timeButton);
     desktop.draw(&vga);
     vgap = &vga;
 
@@ -332,6 +347,10 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
         if(desktop.getRedraw()){
             desktop.draw(&vga);
             desktop.setRedraw(false);
+        }
+        if(timeButton.getRedraw()){
+            timeButton.draw(&vga);
+            timeButton.setRedraw(false);
         }
     }
 }

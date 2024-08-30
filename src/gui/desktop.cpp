@@ -10,13 +10,7 @@ Desktop::Desktop(int32_t width, int32_t height, uint32_t color):CompositeWidget(
     mouseY = height/2;
 }
 
-void Desktop::drawToolbar(GraphicsContext* gc, int32_t x, int32_t y, int32_t width, int32_t height, uint32_t color){
-    gc->drawLine(x, y - 1, 1024, y -1, 0x1d2021);
-    gc->fillRectangle(x, y, width, height, color);
-}
-
 void Desktop::draw(GraphicsContext* gc){
-    drawToolbar(gc, 0, 735, 1024, 34, 0x3c3836);
     CompositeWidget::draw(gc);
     gc->putPixel(mouseX, mouseY, 0xFFFFFF); // Tip of the arrow (white pixel)
     gc->putPixel(mouseX + 1, mouseY + 1, 0xFFFFFF);

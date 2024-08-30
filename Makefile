@@ -24,6 +24,7 @@ objects = obj/kernel.o \
 	  obj/gui/widget.o \
 	  obj/gui/window.o \
 	  obj/gui/button.o \
+	  obj/gui/toolbar.o \
 	  obj/net/etherframe.o \
 	  obj/net/arp.o \
 	  obj/net/ipv4.o \

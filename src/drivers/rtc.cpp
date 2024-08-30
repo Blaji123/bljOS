@@ -7,6 +7,7 @@ using namespace bljOS::drivers;
 
 void printf(uint8_t* str, int32_t x, int32_t y, uint32_t color);
 void printfHex(uint8_t key, int32_t x, int32_t y, uint32_t color);
+void printfDec(uint8_t value, int32_t x, int32_t y, uint32_t color);
 
 RTCEventHandler::RTCEventHandler(){}
 
@@ -19,7 +20,7 @@ uint8_t RealTimeClock::readRTC(uint8_t reg){
     return cmosPort.read();
 }
 
-int RealTimeClock::getBCDValue(int value){
+uint8_t RealTimeClock::getBCDValue(uint8_t value){
     return ((value / 16) * 10) + (value & 0x0F);
 }
 

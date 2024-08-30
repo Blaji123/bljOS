@@ -10,12 +10,12 @@ namespace bljOS{
     namespace drivers{
 
         struct DateTime{
-            int second;
-            int minute;
-            int hour;
-            int day;
-            int month;
-            int year;
+            bljOS::common::uint8_t second;
+            bljOS::common::uint8_t minute;
+            bljOS::common::uint8_t hour;
+            bljOS::common::uint8_t day;
+            bljOS::common::uint8_t month;
+            bljOS::common::uint8_t year;
         };
 
         class RTCEventHandler{
@@ -29,14 +29,14 @@ namespace bljOS{
             bljOS::hardwarecommunication::Port8Bit rtcPort;
             bljOS::hardwarecommunication::Port8Bit cmosPort;
             RTCEventHandler* handler;
-            bljOS::common::uint8_t lastMinute;
+            int lastMinute;
         public:
             RealTimeClock(bljOS::hardwarecommunication::InterruptManager* manager, RTCEventHandler* handler);
 
             virtual bljOS::common::uint32_t handleInterrupt(bljOS::common::uint32_t esp) ;
             virtual void Activate();
             bljOS::common::uint8_t readRTC(bljOS::common::uint8_t reg);
-            int getBCDValue(int value);
+            bljOS::common::uint8_t getBCDValue(bljOS::common::uint8_t value);
             DateTime readCurrentTime();
         };
     }

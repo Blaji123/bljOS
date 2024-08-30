@@ -17,7 +17,6 @@ namespace bljOS{
             virtual void draw(bljOS::common::GraphicsContext* gc);
             virtual bool getRedraw();
             virtual void setRedraw(bool redraw);
-            void drawToolbar(bljOS::common::GraphicsContext* gc, bljOS::common::int32_t x, bljOS::common::int32_t y, bljOS::common::int32_t width, bljOS::common::int32_t height, bljOS::common::uint32_t color);
             virtual void onMouseDown(bljOS::common::uint8_t buttons);
             virtual void onMouseUp(bljOS::common::uint8_t buttons);
             virtual void onMouseMove(int x, int y);
