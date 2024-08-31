@@ -68,6 +68,14 @@ void MemoryManager::free(void* ptr){
 
 }
 
+void *memset(void *ptr, int value, size_t num) {
+    unsigned char *p = ptr;
+    while (num--) {
+        *p++ = (unsigned char)value;
+    }
+    return ptr;
+}
+
 void* operator new(unsigned size){
     if(bljOS::MemoryManager::activeMemoryManager == 0)
         return 0;
