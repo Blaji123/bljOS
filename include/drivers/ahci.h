@@ -25,6 +25,14 @@
 #define HBA_PxCMD_FR    0x4000
 #define HBA_PxCMD_CR    0x8000
 
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
+
+#define ATA_CMD_READ_DMA 0xC8
+#define ATA_CMD_READ_DMA_EX 0x25
+#define ATA_CMD_WRITE_DMA 0xCA
+#define ATA_CMD_WRITE_DMA_EX 0x35
+
 namespace bljOS{
     namespace drivers{
 
@@ -266,6 +274,9 @@ namespace bljOS{
 
             static int check_type(HBA_PORT* port);
             void probe_port(HBA_MEM* abar);
+            void port_rebase(HBA_PORT* port, int portno);
+            bool read(HBA_PORT* port, bljOS::common::uint32_t startl, bljOS::common::uint32_t starth, bljOS::common::uint32_t count, bljOS::common::uint16_t* buf);
+            bool write(HBA_PORT* port, bljOS::common::uint32_t startl, bljOS::common::uint32_t starth, bljOS::common::uint32_t count, bljOS::common::uint16_t* buf);
         };
     }
 }
