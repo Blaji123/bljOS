@@ -3,6 +3,8 @@
 
 #include <common/types.h>
 #include <memorymanagement.h>
+#include <hardwarecommunication/pci.h>
+#include <drivers/driver.h>
 
 #define	SATA_SIG_ATA	0x00000101	// SATA drive
 #define	SATA_SIG_ATAPI	0xEB140101	// SATAPI drive
@@ -24,6 +26,7 @@
 #define HBA_PxCMD_FRE   0x0010
 #define HBA_PxCMD_FR    0x4000
 #define HBA_PxCMD_CR    0x8000
+#define HBA_PxIS_TFES   (1 << 30)
 
 #define ATA_DEV_BUSY 0x80
 #define ATA_DEV_DRQ 0x08
@@ -219,7 +222,7 @@ namespace bljOS{
             FIS_REG_D2H rfis;
             bljOS::common::uint8_t pad2[4];
 
-            FIS_TYPE_DEV_BITS sdbfis;
+            FIS_DATA sdbfis;
 
             bljOS::common::uint8_t ufis[64];
 
@@ -268,9 +271,10 @@ namespace bljOS{
             HBA_PRDT_ENTRY prdt_entry[1];
         }HBA_CMD_TBL;
 
-        class AdvancedHostControllerInterface{
+        class AdvancedHostControllerInterface : public Driver{
         public:
-            AdvancedHostControllerInterface();
+            HBA_MEM* abar;
+            AdvancedHostControllerInterface(bljOS::hardwarecommunication::PeripheralComponentInterconnectDeviceDescriptor* dev);
 
             static int check_type(HBA_PORT* port);
             void probe_port(HBA_MEM* abar);

@@ -41,6 +41,15 @@ namespace bljOS{
 
             bljOS::common::uint8_t revision;
 
+            bljOS::common::uint16_t command;
+
+            bljOS::common::uint32_t BAR0;  // Base Address Registers
+            bljOS::common::uint32_t BAR1;
+            bljOS::common::uint32_t BAR2;
+            bljOS::common::uint32_t BAR3;
+            bljOS::common::uint32_t BAR4;
+            bljOS::common::uint32_t BAR5;  // AHCI typically uses BAR5
+
             PeripheralComponentInterconnectDeviceDescriptor();
             ~PeripheralComponentInterconnectDeviceDescriptor();
 

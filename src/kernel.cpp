@@ -25,6 +25,7 @@
 #include <drivers/rtc.h>
 #include <gui/button.h>
 #include <gui/toolbar.h>
+#include <drivers/ahci.h>
 
 using namespace bljOS;
 using namespace bljOS::common;

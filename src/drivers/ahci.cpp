@@ -3,6 +3,7 @@
 using namespace bljOS;
 using namespace bljOS::common;
 using namespace bljOS::drivers;
+using namespace bljOS::hardwarecommunication;
 
 void printf(uint8_t* str, int32_t x, int32_t y, uint32_t color);
 void printfHex(uint8_t key, int32_t x, int32_t y, uint32_t color);
@@ -127,7 +128,8 @@ bool AdvancedHostControllerInterface::read(HBA_PORT* port, uint32_t startl, uint
     HBA_CMD_TBL* cmdTbl = (HBA_CMD_TBL*)(cmdHeader->ctba);
     memset(cmdTbl, 0, sizeof(HBA_CMD_TBL) + (cmdHeader->prdtl - 1)*sizeof(HBA_PRDT_ENTRY));
 
-    for(int i=0;i<cmdHeader->prdtl-1;i++){
+    int i=0;
+    for(i=0;i<cmdHeader->prdtl-1;i++){
         cmdTbl->prdt_entry[i].dba = (uint32_t)buf;
         cmdTbl->prdt_entry[i].dbc = 8*1024-1;
         cmdTbl->prdt_entry[i].i = 1;
@@ -161,7 +163,7 @@ bool AdvancedHostControllerInterface::read(HBA_PORT* port, uint32_t startl, uint
         spin++;
 
     if(spin == 1000000){
-        printf("Port is hung", 60, 60, 0xebdbb2);
+        printf((uint8_t*)"Port is hung", 60, 60, 0xebdbb2);
         return false;
     }
 
@@ -171,13 +173,13 @@ bool AdvancedHostControllerInterface::read(HBA_PORT* port, uint32_t startl, uint
         if((port->ci & (1<<slot)) == 0)
             break;
         if(port->is & HBA_PxIS_TFES){
-            printf("Read disk error", 60, 60, 0xebdbb2);
+            printf((uint8_t*)"Read disk error", 60, 60, 0xebdbb2);
             return false;
         }
     }
 
     if(port->is & HBA_PxIS_TFES){
-        printf("Read disk error", 60, 60, 0xebdbb2);
+        printf((uint8_t*)"Read disk error", 60, 60, 0xebdbb2);
         return false;
     }
 
@@ -200,7 +202,8 @@ bool AdvancedHostControllerInterface::write(HBA_PORT* port, uint32_t startl, uin
     HBA_CMD_TBL* cmdTbl = (HBA_CMD_TBL*)(cmdHeader->ctba);
     memset(cmdTbl, 0, sizeof(HBA_CMD_TBL) + (cmdHeader->prdtl - 1)*sizeof(HBA_PRDT_ENTRY));
 
-    for(int i=0;i<cmdHeader->prdtl-1;i++){
+    int i=0;
+    for(i=0;i<cmdHeader->prdtl-1;i++){
         cmdTbl->prdt_entry[i].dba = (uint32_t)buf;
         cmdTbl->prdt_entry[i].dbc = 8*1024-1;
         cmdTbl->prdt_entry[i].i = 1;
@@ -234,7 +237,7 @@ bool AdvancedHostControllerInterface::write(HBA_PORT* port, uint32_t startl, uin
         spin++;
 
     if(spin == 1000000){
-        printf("Port is hung", 60, 60, 0xebdbb2);
+        printf((uint8_t*)"Port is hung", 60, 60, 0xebdbb2);
         return false;
     }
 
@@ -244,19 +247,27 @@ bool AdvancedHostControllerInterface::write(HBA_PORT* port, uint32_t startl, uin
         if((port->ci & (1<<slot)) == 0)
             break;
         if(port->is & HBA_PxIS_TFES){
-            printf("Read disk error", 60, 60, 0xebdbb2);
+            printf((uint8_t*)"Read disk error", 60, 60, 0xebdbb2);
             return false;
         }
     }
 
     if(port->is & HBA_PxIS_TFES){
-        printf("Read disk error", 60, 60, 0xebdbb2);
+        printf((uint8_t*)"Read disk error", 60, 60, 0xebdbb2);
         return false;
     }
 
     return true;
 }
 
+AdvancedHostControllerInterface::AdvancedHostControllerInterface(PeripheralComponentInterconnectDeviceDescriptor* dev):Driver(){
+    dev->command |= 0x04;
+
+    uint32_t abarAddress = dev->BAR5 & ~0xF;
+    this->abar = (HBA_MEM*)abarAddress;
+
+    probe_port(this->abar);
+}
 
 
 

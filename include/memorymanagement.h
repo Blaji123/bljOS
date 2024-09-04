@@ -24,7 +24,7 @@ namespace bljOS{
     };
 }
 
-void *memset(void *ptr, int value, size_t num);
+void *memset(void *ptr, int value, bljOS::common::size_t num);
 
 void* operator new(unsigned size);
 void* operator new[](unsigned size);

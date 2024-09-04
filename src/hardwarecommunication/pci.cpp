@@ -1,5 +1,6 @@
 #include <hardwarecommunication/pci.h>
 #include <drivers/amd_am79c973.h>
+#include <drivers/ahci.h>
 using namespace bljOS;
 using namespace bljOS::drivers;
 using namespace bljOS::common;
@@ -7,6 +8,7 @@ using namespace bljOS::hardwarecommunication;
 
 void printf(char*);
 void printfHex(uint8_t);
+void printf(uint8_t* str, int32_t x, int32_t y, uint32_t color);
 
 PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor(){}
 
@@ -94,12 +96,24 @@ BaseAddressRegister PeripheralComponentInterconnectController::GetBaseAddressReg
     result.type = (bar_value & 0x01) ? InputOuput : MemoryMapping;
     uint32_t temp;
     if(result.type == MemoryMapping){
-        switch((bar_value>>1)&0x3){
-            case 0: break; // 32 bit Mode
-            case 1: break; // 20  bit Mode
-            case 2: break;// 64 bit Mode
-
+        switch((bar_value >> 1) & 0x3){
+            case 0x0:
+                result.address = (uint8_t*)(bar_value & ~0xF);
+                break;
+            case 0x1:
+                break;
+            case 0x2:
+                temp = Read(bus, device, function, 0x10 + 4 * (bar + 1));
+                result.address = (uint8_t*)(((uint64_t)temp << 32) | (bar_value & ~0xF));
+                break;
+            default:
+                return result;
         }
+        Write(bus, device, function, 0x10 + 4 * bar, 0xFFFFFFFF);
+        uint32_t size_mask = Read(bus, device, function, 0x10 + 4*bar);
+        Write(bus, device, function, 0x10 + 4 * bar, bar_value);
+        result.size = ~(size_mask & ~0xF) + 1;
+        result.prefetchable = (bar_value & 0x8) != 0;
     }else{
         result.address = (uint8_t*)(bar_value & ~0x3);
         result.prefetchable = false;
@@ -124,6 +138,17 @@ Driver* PeripheralComponentInterconnectController::GetDriver(PeripheralComponent
             break;
     }
     switch(dev.class_id){
+        case 0x01:
+            switch(dev.subclass_id){
+                case 0x06:
+                    driver = (AdvancedHostControllerInterface*)MemoryManager::activeMemoryManager->malloc(sizeof(AdvancedHostControllerInterface));
+                    if(driver!=0)
+                        new (driver)AdvancedHostControllerInterface(&dev);
+                    return driver;
+                    break;
+            }
+            break;
+
         case 0x03: // graphics
             switch(dev.subclass_id){
                 case 0x00: // VGA
@@ -152,8 +177,15 @@ PeripheralComponentInterconnectDeviceDescriptor PeripheralComponentInterconnectC
     result.revision = Read(bus, device, function, 0x08);
     result.interrupt = Read(bus, device, function, 0x3c);
 
+    result.command = Read(bus, device, function, 0x04);
+
+    // Reading the Base Address Registers (BARs)
+    result.BAR0 = Read(bus, device, function, 0x10);
+    result.BAR1 = Read(bus, device, function, 0x14);
+    result.BAR2 = Read(bus, device, function, 0x18);
+    result.BAR3 = Read(bus, device, function, 0x1C);
+    result.BAR4 = Read(bus, device, function, 0x20);
+    result.BAR5 = Read(bus, device, function, 0x24);  //
+
     return result;
 }
-
-
-

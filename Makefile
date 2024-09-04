@@ -20,6 +20,7 @@ objects = obj/kernel.o \
 	  obj/drivers/driver.o \
 	  obj/drivers/vga.o \
 	  obj/drivers/rtc.o \
+	  obj/drivers/ahci.o \
 	  obj/gui/desktop.o \
 	  obj/gui/widget.o \
 	  obj/gui/window.o \
