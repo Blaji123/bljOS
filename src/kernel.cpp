@@ -26,6 +26,7 @@
 #include <gui/button.h>
 #include <gui/toolbar.h>
 #include <drivers/ahci.h>
+#include <drivers/disk.h>
 
 using namespace bljOS;
 using namespace bljOS::common;
@@ -246,7 +247,6 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     printfHex(((size_t)allocated) & 0xFF);
     printf("\n");
     */
-
     TaskManager taskManager;
     /*testing multitasking*/
     /*
@@ -286,6 +286,8 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
 
     drvManager.ActivateAll();
 
+    MBR_PARTITION_TABLE((AdvancedHostControllerInterface*)(drvManager.drivers[4]));
+
     /*testing ata & fat32 */
     /*
     AdvancedTechnologyAttachment ata0m(0x1F0, true);
@@ -308,7 +310,7 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     uint8_t subnet1 = 255, subnet2 = 255, subnet3 = 255, subnet4 = 0;
     uint32_t subnet_be = ((uint32_t)subnet4 << 24) | ((uint32_t)subnet3 << 16) | ((uint32_t)subnet2 << 8) | ((uint32_t)subnet1);
 
-    amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[2]);
+    amd_am79c973* eth0 = (amd_am79c973*)(drvManager.drivers[3]);
     eth0->SetIPAddress(ip_be);
 
     EtherFrameProvider etherFrame(eth0);

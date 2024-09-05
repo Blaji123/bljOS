@@ -38,20 +38,20 @@ void AdvancedHostControllerInterface::probe_port(HBA_MEM* abar){
         if(pi & 1){
             int dt = check_type(&abar->ports[i]);
             if(dt == AHCI_DEV_SATA){
-                printf((uint8_t*)"SATA drive found at port: ", i + 10, i + 10, 0xebdbb2);
-                printfHex((uint8_t)i, i + 10, i + 20, 0xebdbb2);
+//                 printf((uint8_t*)"SATA drive found at port: ", i + 10, i + 10, 0xebdbb2);
+//                 printfHex((uint8_t)i, i + 10, i + 20, 0xebdbb2);
             }else if(dt == AHCI_DEV_SATAPI){
-                printf((uint8_t*)"SATAPI drive found at port: ", i + 20, i + 10, 0xebdbb2);
-                printfHex((uint8_t)i, i + 20, i + 20, 0xebdbb2);
+//                 printf((uint8_t*)"SATAPI drive found at port: ", i + 20, i + 10, 0xebdbb2);
+//                 printfHex((uint8_t)i, i + 20, i + 20, 0xebdbb2);
             }else if(dt == AHCI_DEV_SEMB){
-                printf((uint8_t*)"SAEMB drive found at port: ", i + 30, i + 10, 0xebdbb2);
-                printfHex((uint8_t)i, i + 30, i + 20, 0xebdbb2);
+//                 printf((uint8_t*)"SAEMB drive found at port: ", i + 30, i + 10, 0xebdbb2);
+//                 printfHex((uint8_t)i, i + 30, i + 20, 0xebdbb2);
             }else if(dt == AHCI_DEV_PM){
-                printf((uint8_t*)"PM drive found at port: ", i + 40, i + 10, 0xebdbb2);
-                printfHex((uint8_t)i, i + 40, i + 20, 0xebdbb2);
+//                 printf((uint8_t*)"PM drive found at port: ", i + 40, i + 10, 0xebdbb2);
+//                 printfHex((uint8_t)i, i + 40, i + 20, 0xebdbb2);
             }else{
-                printf((uint8_t*)"No drive found at port: ", i + 50, i + 10, 0xebdbb2);
-                printfHex((uint8_t)i, i + 50, i + 20, 0xebdbb2);
+//                 printf((uint8_t*)"No drive found at port: ", i + 50, i + 10, 0xebdbb2);
+//                 printfHex((uint8_t)i, i + 50, i + 20, 0xebdbb2);
             }
         }
         pi >>= 1;
@@ -110,9 +110,11 @@ void AdvancedHostControllerInterface::port_rebase(HBA_PORT* port, int portno){
     }
 
     start_cmd(port);
+
+    this->sata |= (1<<portno);
 }
 
-bool AdvancedHostControllerInterface::read(HBA_PORT* port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t* buf){
+bool AdvancedHostControllerInterface::read(HBA_PORT* port, uint32_t startl, uint32_t starth, uint32_t count, uint8_t* buf){
     port->is = (uint32_t) -1;
     int spin = 0;
     int slot = find_cmdslot(port);
@@ -186,7 +188,7 @@ bool AdvancedHostControllerInterface::read(HBA_PORT* port, uint32_t startl, uint
     return true;
 }
 
-bool AdvancedHostControllerInterface::write(HBA_PORT* port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t* buf){
+bool AdvancedHostControllerInterface::write(HBA_PORT* port, uint32_t startl, uint32_t starth, uint32_t count, uint8_t* buf){
     port->is = (uint32_t) -1;
     int spin = 0;
     int slot = find_cmdslot(port);

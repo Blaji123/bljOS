@@ -9,6 +9,9 @@ using namespace bljOS::hardwarecommunication;
 void printf(char*);
 void printfHex(uint8_t);
 void printf(uint8_t* str, int32_t x, int32_t y, uint32_t color);
+void printfHex(uint8_t key, int32_t x, int32_t y, uint32_t color);
+
+int i = 0;
 
 PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor(){}
 
@@ -62,8 +65,10 @@ void PeripheralComponentInterconnectController::SelectDrivers(DriverManager* dri
                 }
 
                 Driver* driver = GetDriver(dev, interrupts);
-                if(driver!=0)
+                if(driver!=0){
+                    i++;
                     driverManager->AddDriver(driver);
+                }
 
                 printf("PCI BUS ");
                 printfHex(bus & 0xFF);

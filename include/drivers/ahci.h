@@ -273,14 +273,16 @@ namespace bljOS{
 
         class AdvancedHostControllerInterface : public Driver{
         public:
+            bljOS::common::uint32_t sata;
+            bljOS::common::uint32_t cmdSlotsPreping;
             HBA_MEM* abar;
             AdvancedHostControllerInterface(bljOS::hardwarecommunication::PeripheralComponentInterconnectDeviceDescriptor* dev);
 
             static int check_type(HBA_PORT* port);
             void probe_port(HBA_MEM* abar);
             void port_rebase(HBA_PORT* port, int portno);
-            bool read(HBA_PORT* port, bljOS::common::uint32_t startl, bljOS::common::uint32_t starth, bljOS::common::uint32_t count, bljOS::common::uint16_t* buf);
-            bool write(HBA_PORT* port, bljOS::common::uint32_t startl, bljOS::common::uint32_t starth, bljOS::common::uint32_t count, bljOS::common::uint16_t* buf);
+            bool read(HBA_PORT* port, bljOS::common::uint32_t startl, bljOS::common::uint32_t starth, bljOS::common::uint32_t count, bljOS::common::uint8_t* buf);
+            bool write(HBA_PORT* port, bljOS::common::uint32_t startl, bljOS::common::uint32_t starth, bljOS::common::uint32_t count, bljOS::common::uint8_t* buf);
         };
     }
 }
