@@ -38,7 +38,16 @@ OpenFile* VirtualFileSystemController::fsUserDuplicateNode(void* taskPtr, OpenFi
 }
 
 OpenFile* VirtualFileSystemController::fsUserDuplicateNodeUnsafe(OpenFile* original){
+    OpenFile* orphan = (OpenFile*)MemoryManagement::activeMemoryManager->malloc(sizeof(OpenFile));
+    orphan->next = 0;
+    memcpy((void*)((size_t)orphan + sizeof(orphan->next)), (void*)((size_t)original + sizeof(original->next)), sizeof(OpenFile) - sizeof(orphan->next));
 
+    if(original->handlers->duplicate && !original->handlers->duplicate(original, orphan)){
+        MemoryManagement::activeMemoryManager->free(orphan);
+        return 0;
+    }
+
+    return orphan;
 }
 
 uint32_t VirtualFileSystemController::fsRead(OpenFile* file, uint8_t* out, uint32_t limit){
@@ -57,6 +66,10 @@ int VirtualFileSystemController::fsReadLink(void* task, char* path, char* buf, i
 
 }
 
+int VirtualFileSystemController::fsMkdir(void *task, char *path, uint32_t mode){
+
+}
+
 size_t VirtualFileSystemController::fsGetFilesize(OpenFile* file){
 
 }
@@ -69,18 +82,18 @@ char* VirtualFileSystemController::fsSanitize(char* prefix, char* filename){
 
 }
 
-// bool VirtualFileSystemController::fsStat(OpenFile* fd, stat* target){
-//
-// }
+bool VirtualFileSystemController::fsStat(OpenFile* fd, stat* target){
 
-// bool VirtualFileSystemController::fsStatByFilename(void* task, char* filename, stat* target){
-//
-//
-// }
+}
 
-// bool VirtualFileSystemController::fsStatByFilename(void* task, char* filename, stat* target){
-//
-// }
+bool VirtualFileSystemController::fsStatByFilename(void* task, char* filename, stat* target){
+
+
+}
+
+bool VirtualFileSystemController::fsLStatByFilename(void* task, char* filename, stat* target){
+
+}
 
 MountPoint* VirtualFileSystemController::fsMount(char* prefix, CONNECTOR connector, uint32_t disk, uint8_t partition){
 

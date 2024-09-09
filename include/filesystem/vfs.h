@@ -3,6 +3,9 @@
 
 #include <common/types.h>
 #include <drivers/disk.h>
+#include <common/linux.h>
+#include <multitasking.h>
+#include <memorymanagement.h>
 
 #define FS_MODE_READ 0x01
 #define FS_MODE_WRITE 0x02
@@ -59,10 +62,10 @@ namespace bljOS{
         typedef int (*SpecialWriteHandler)(OpenFile* fd, bljOS::common::uint8_t* in, bljOS::common::size_t limit);
         typedef bljOS::common::size_t (*SpecialSeekHandler)(OpenFile* file, bljOS::common::size_t target, long int offset, int whence);
         typedef int (*SpecialIoctlHandler)(OpenFile* fd, bljOS::common::uint64_t request, void* arg);
-//         typedef int (*SpecialStatHandler)(OpenFile* fd, stat* stat);
+        typedef int (*SpecialStatHandler)(OpenFile* fd, bljOS::common::stat* stat);
         typedef bljOS::common::size_t (*SpecialMmapHandler)(bljOS::common::size_t addr, bljOS::common::size_t length, int prot, int flags, OpenFile* fd, bljOS::common::size_t pgoffset);
         typedef bool (*SpecialDuplicate)(OpenFile* original, OpenFile* orphan);
-//         typedef int (*SpecialGetdents64)(OpenFile* fd, struct linux_dirent64* dirp, unsigned int count);
+        typedef int (*SpecialGetdents64)(OpenFile* fd, struct bljOS::common::linux_dirent64* dirp, unsigned int count);
         typedef bool (*SpecialOpen)(char* filename, OpenFile* fd, char** symlinkResolve);
         typedef bool (*SpecialClose)(OpenFile* fd);
         typedef bljOS::common::size_t (*SpecialGetFilesize)(OpenFile* fd);
@@ -72,9 +75,9 @@ namespace bljOS{
             SpecialWriteHandler write;
             SpecialSeekHandler seek;
             SpecialIoctlHandler ioctl;
-//             SpecialStatHandler stat;
+            SpecialStatHandler stat;
             SpecialMmapHandler mmap;
-//             SpecialGetdents64 getdents64;
+            SpecialGetdents64 getdents64;
             SpecialGetFilesize getFilesize;
 
             SpecialDuplicate duplicate;
@@ -82,8 +85,9 @@ namespace bljOS{
             SpecialClose close;
         };
 
-//         typedef bool (*MntStat)(MountPoint* mnt, char* filename, struct stat* target, char** symlinkResolve);
-//         typedef bool (*MntLstat)(MountPoint* mnt, char* filename, struct stat* target, char** symlinkResolve);
+        typedef bool (*MntStat)(MountPoint* mnt, char* filename, struct bljOS::common::stat* target, char** symlinkResolve);
+        typedef bool (*MntLstat)(MountPoint* mnt, char* filename, struct bljOS::common::stat* target, char** symlinkResolve);
+        typedef int (*MntMkdir)(MountPoint *mnt, char *path, bljOS::common::uint32_t mode, char **symlinkResolve);
 
         struct MountPoint{
             MountPoint* next;
@@ -97,8 +101,9 @@ namespace bljOS{
             FS filesystem;
 
             VfsHandlers* handlers;
-//             MntStat stat;
-//             MntLstat lstat;
+            MntStat stat;
+            MntLstat lstat;
+            MntMkdir mkdir;
 
             bljOS::drivers::MBR_PARTITION mbr;
             void* fsInfo;
@@ -142,14 +147,15 @@ namespace bljOS{
             bljOS::common::uint32_t fsWrite(OpenFile* file, bljOS::common::uint8_t* in, bljOS::common::uint32_t limit);
             void fsReadFullFile(OpenFile* file, bljOS::common::uint8_t* out);
             int fsReadLink(void* task, char* path, char* buf, int size);
+            int fsMkdir(void *task, char *path,  bljOS::common::uint32_t mode);
             bljOS::common::size_t fsGetFilesize(OpenFile* file);
 
             char* fsStripMountPoint(const char* filename, MountPoint* mnt);
             char* fsSanitize(char* prefix, char* filename);
 
-//             bool fsStat(OpenFile* fd, stat* target);
-//             bool fsStatByFilename(void* task, char* filename, stat* target);
-//             bool fsStatByFilename(void* task, char* filename, stat* target);
+            bool fsStat(OpenFile* fd, bljOS::common::stat* target);
+            bool fsStatByFilename(void* task, char* filename, bljOS::common::stat* target);
+            bool fsLStatByFilename(void* task, char* filename, bljOS::common::stat* target);
 
             MountPoint* fsMount(char* prefix, CONNECTOR connector, bljOS::common::uint32_t disk, bljOS::common::uint8_t partition);
             bool fsUnmount(MountPoint* mnt);

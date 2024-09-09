@@ -27,6 +27,7 @@
 #include <gui/toolbar.h>
 #include <drivers/ahci.h>
 #include <drivers/disk.h>
+#include <filesystem/vfs.h>
 
 using namespace bljOS;
 using namespace bljOS::common;

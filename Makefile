@@ -35,6 +35,7 @@ objects = obj/kernel.o \
 	  obj/net/tcp.o \
 	  obj/filesystem/fat32.o \
 	  obj/filesystem/msdospart.o \
+	  obj/filesystem/vfs.o \
 
 obj/%.o: src/%.cpp
 	mkdir -p $(@D)
