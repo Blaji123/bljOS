@@ -38,12 +38,12 @@ OpenFile* VirtualFileSystemController::fsUserDuplicateNode(void* taskPtr, OpenFi
 }
 
 OpenFile* VirtualFileSystemController::fsUserDuplicateNodeUnsafe(OpenFile* original){
-    OpenFile* orphan = (OpenFile*)MemoryManagement::activeMemoryManager->malloc(sizeof(OpenFile));
+    OpenFile* orphan = (OpenFile*)MemoryManager::activeMemoryManager->malloc(sizeof(OpenFile));
     orphan->next = 0;
     memcpy((void*)((size_t)orphan + sizeof(orphan->next)), (void*)((size_t)original + sizeof(original->next)), sizeof(OpenFile) - sizeof(orphan->next));
 
     if(original->handlers->duplicate && !original->handlers->duplicate(original, orphan)){
-        MemoryManagement::activeMemoryManager->free(orphan);
+        MemoryManager::activeMemoryManager->free(orphan);
         return 0;
     }
 

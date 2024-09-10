@@ -9,6 +9,7 @@ objects = obj/kernel.o \
 	  obj/memorymanagement.o \
 	  obj/multitasking.o \
 	  obj/syscalls.o \
+	  obj/spinlock.o \
 	  obj/hardwarecommunication/interrupts.o \
 	  obj/hardwarecommunication/port.o \
 	  obj/hardwarecommunication/interruptstubs.o \

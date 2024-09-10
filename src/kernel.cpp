@@ -28,6 +28,7 @@
 #include <drivers/ahci.h>
 #include <drivers/disk.h>
 #include <filesystem/vfs.h>
+#include <spinlock.h>
 
 using namespace bljOS;
 using namespace bljOS::common;
