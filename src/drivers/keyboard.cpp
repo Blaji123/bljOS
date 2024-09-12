@@ -85,7 +85,7 @@ uint32_t KeyboardDriver::handleInterrupt(uint32_t esp){
             case 0x1C: handler->onKeyDown('\n'); break;
             case 0x39: handler->onKeyDown(' '); break;
             default:
-            printf((uint8_t*)"here", 20, 20, 0xebdbb2);
+//             printf((uint8_t*)"here", 20, 20, 0xebdbb2);
 //                 printf("KEYBOARD 0x");
 //                 printfHex(key);
                 break;

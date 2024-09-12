@@ -18,7 +18,7 @@ namespace bljOS{
         volatile int flag;
     }atomic_flag;
 
-    int atomic_flag_test_and_set_explicit(atomic_flag* lock, memory_order memory_order1){
+    inline int atomic_flag_test_and_set_explicit(atomic_flag* lock, memory_order memory_order1){
         int old_value = 1;
 
         __asm__ __volatile__(
@@ -31,7 +31,7 @@ namespace bljOS{
         return old_value;
     }
 
-    void atomic_flag_clear_explicit(atomic_flag* lock, memory_order memory_order1){
+    inline void atomic_flag_clear_explicit(atomic_flag* lock, memory_order memory_order1){
         __asm__ __volatile__(
             "movl $0, %0"
             : "=m" (lock->flag)

@@ -4,29 +4,18 @@ using namespace bljOS;
 using namespace bljOS::common;
 using namespace bljOS::drivers;
 using namespace bljOS::gui;
+using namespace bljOS::datastructures;
 
-Desktop::Desktop(int32_t width, int32_t height, uint32_t color):CompositeWidget(0, 0, 0, width, height, color), MouseEventHandler(){
+Desktop::Desktop(int32_t width, int32_t height, uint32_t color, Bitmap* bitmap):CompositeWidget(0, 0, 0, width, height, color), MouseEventHandler(){
+    this->bitmap = bitmap;
     mouseX = width/2;
     mouseY = height/2;
 }
 
 void Desktop::draw(GraphicsContext* gc){
     CompositeWidget::draw(gc);
-    gc->putPixel(mouseX, mouseY, 0xFFFFFF); // Tip of the arrow (white pixel)
-    gc->putPixel(mouseX + 1, mouseY + 1, 0xFFFFFF);
-    gc->putPixel(mouseX + 2, mouseY + 2, 0xFFFFFF);
-    gc->putPixel(mouseX + 3, mouseY + 3, 0xFFFFFF);
-    gc->putPixel(mouseX + 4, mouseY + 4, 0xFFFFFF);
-    gc->putPixel(mouseX + 5, mouseY + 5, 0xFFFFFF);
-    gc->putPixel(mouseX + 6, mouseY + 6, 0xFFFFFF);
 
-    gc->putPixel(mouseX + 1, mouseY, 0x000000); // Outline of the arrow (black pixel)
-    gc->putPixel(mouseX + 2, mouseY + 1, 0x000000);
-    gc->putPixel(mouseX + 3, mouseY + 2, 0x000000);
-    gc->putPixel(mouseX + 4, mouseY + 3, 0x000000);
-    gc->putPixel(mouseX + 5, mouseY + 4, 0x000000);
-    gc->putPixel(mouseX + 6, mouseY + 5, 0x000000);
-    gc->putPixel(mouseX + 7, mouseY + 6, 0x000000);
+    bitmap->drawBMP(mouse_icon, gc, mouseX, mouseY);
 }
 
 bool Desktop::getRedraw(){

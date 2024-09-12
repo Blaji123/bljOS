@@ -29,6 +29,7 @@
 #include <drivers/disk.h>
 #include <filesystem/vfs.h>
 #include <spinlock.h>
+#include <datastructures/bitmap.h>
 
 using namespace bljOS;
 using namespace bljOS::common;
@@ -37,6 +38,7 @@ using namespace bljOS::hardwarecommunication;
 using namespace bljOS::gui;
 using namespace bljOS::net;
 using namespace bljOS::filesystem;
+using namespace bljOS::datastructures;
 
 VideoGraphicsArray *vgap;
 
@@ -217,8 +219,9 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     MultibootInfo* mbInfo = (MultibootInfo*)multibootStructure;
     GlobalDescriptorTable gdt;
 
+    Bitmap bitmap;
     VideoGraphicsArray vga(mbInfo);
-    Desktop desktop(1024, 768, 0x83a598);
+    Desktop desktop(1024, 768, 0x83a598, &bitmap);
     Toolbar toolbar(&desktop, 0, 735, 1024, 34, 0x3c3836);
     desktop.addChild(&toolbar);
     TimeButton timeButton(&toolbar, 980, 735, 42, 34, 0x3c3836, 0xebdbb2);
@@ -288,7 +291,7 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
 
     drvManager.ActivateAll();
 
-    MBR_PARTITION_TABLE((AdvancedHostControllerInterface*)(drvManager.drivers[4]));
+    MBR_PARTITION_TABLE mbr_partition_table((AdvancedHostControllerInterface*)(drvManager.drivers[4]));
 
     /*testing ata & fat32 */
     /*

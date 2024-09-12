@@ -5,14 +5,17 @@
 #include <gui/widget.h>
 #include <common/types.h>
 #include <common/graphicscontext.h>
+#include <datastructures/bitmap.h>
+#include <common/bitmaparrays.h>
 
 namespace bljOS{
     namespace gui{
         class Desktop : public CompositeWidget, public bljOS::drivers::MouseEventHandler{
         protected:
             bljOS::common::uint32_t mouseX, mouseY;
+            bljOS::datastructures::Bitmap* bitmap;
         public:
-            Desktop(bljOS::common::int32_t width, bljOS::common::int32_t height, bljOS::common::uint32_t color);
+            Desktop(bljOS::common::int32_t width, bljOS::common::int32_t height, bljOS::common::uint32_t color, bljOS::datastructures::Bitmap* bitmap);
 
             virtual void draw(bljOS::common::GraphicsContext* gc);
             virtual bool getRedraw();

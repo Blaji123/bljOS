@@ -37,6 +37,7 @@ objects = obj/kernel.o \
 	  obj/filesystem/fat32.o \
 	  obj/filesystem/msdospart.o \
 	  obj/filesystem/vfs.o \
+	  obj/datastructures/bitmap.o \
 
 obj/%.o: src/%.cpp
 	mkdir -p $(@D)
