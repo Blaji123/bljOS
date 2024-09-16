@@ -23,6 +23,7 @@ objects = obj/kernel.o \
 	  obj/drivers/rtc.o \
 	  obj/drivers/ahci.o \
 	  obj/drivers/disk.o \
+	  obj/drivers/acpi.o \
 	  obj/gui/desktop.o \
 	  obj/gui/widget.o \
 	  obj/gui/window.o \

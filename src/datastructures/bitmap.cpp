@@ -31,6 +31,10 @@ void Bitmap::drawBMP(uint8_t* bmp_data, GraphicsContext* gc, uint32_t xpos, uint
 
             uint8_t alpha = (bytes_per_pixel == 4) ? pixel_data[bmp_index + 3] : 0xFF;
 
+            if (red == 0 && green == 0 && blue == 0) {
+                continue;
+            }
+
             uint32_t color = (alpha << 24) | (red << 16) | (green << 8) | blue;
 
             gc->putPixel(x + xpos, y + ypos, color);

@@ -26,6 +26,7 @@ namespace bljOS{
 
 void *memset(void *ptr, int value, bljOS::common::size_t num);
 void *memcpy(void *dest, void *src, bljOS::common::size_t n);
+int memcmp(const void* ptr1, const void* ptr2, bljOS::common::size_t num);
 
 void* operator new(unsigned size);
 void* operator new[](unsigned size);

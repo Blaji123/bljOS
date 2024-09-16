@@ -6,7 +6,6 @@
 #include <common/types.h>
 #include <common/graphicscontext.h>
 #include <datastructures/bitmap.h>
-#include <common/bitmaparrays.h>
 
 namespace bljOS{
     namespace gui{

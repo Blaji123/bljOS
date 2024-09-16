@@ -30,6 +30,7 @@
 #include <filesystem/vfs.h>
 #include <spinlock.h>
 #include <datastructures/bitmap.h>
+#include <drivers/acpi.h>
 
 using namespace bljOS;
 using namespace bljOS::common;
