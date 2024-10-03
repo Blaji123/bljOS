@@ -66,9 +66,9 @@ namespace bljOS{
             bljOS::common::uint32_t Read(bljOS::common::uint16_t bus, bljOS::common::uint16_t device, bljOS::common::uint16_t function, bljOS::common::uint32_t registeroffset);
             void Write(bljOS::common::uint16_t bus, bljOS::common::uint16_t device, bljOS::common::uint16_t function, bljOS::common::uint32_t registeroffset, bljOS::common::uint32_t value);
             bool DeviceHasFunctions(bljOS::common::uint16_t bus, bljOS::common::uint16_t device);
-            void SelectDrivers(bljOS::drivers::DriverManager* driverManager, bljOS::hardwarecommunication::InterruptManager* interrupts);
+            void SelectDrivers(bljOS::drivers::DriverManager* driverManager, InterruptManager* interrupts);
             PeripheralComponentInterconnectDeviceDescriptor GetDeviceDescriptor(bljOS::common::uint16_t bus, bljOS::common::uint16_t device, bljOS::common::uint16_t function);
-            bljOS::drivers::Driver* GetDriver(PeripheralComponentInterconnectDeviceDescriptor dev, bljOS::hardwarecommunication::InterruptManager* interrupts);
+            bljOS::drivers::Driver* GetDriver(PeripheralComponentInterconnectDeviceDescriptor dev, InterruptManager* interrupts);
             BaseAddressRegister GetBaseAddressRegister(bljOS::common::uint16_t bus, bljOS::common::uint16_t device, bljOS::common::uint16_t function, bljOS::common::uint16_t bar);
         };
     }

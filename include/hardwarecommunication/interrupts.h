@@ -9,6 +9,7 @@
 namespace bljOS{
     namespace hardwarecommunication{
 
+        class TaskManager;
         class InterruptManager;
 
         class InterruptHandler{

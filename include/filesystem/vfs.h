@@ -4,9 +4,9 @@
 #include <common/types.h>
 #include <drivers/disk.h>
 #include <common/linux.h>
+#include <spinlock.h>
 #include <multitasking.h>
 #include <memorymanagement.h>
-#include <spinlock.h>
 
 #define FS_MODE_READ 0x01
 #define FS_MODE_WRITE 0x02

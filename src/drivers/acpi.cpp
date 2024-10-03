@@ -31,4 +31,9 @@ void AdvancedConfigurationPowerInterface::parse_fadt(struct FADT* fadt){
         struct ACPISDTHeader* dsdt = (struct ACPISDTHeader*)fadt->dsdt;
 //         parse_dsdt(dsdt);
     }
+
+    if(fadt->pm1a_event_block){
+        uint32_t pm1a_event_value = *(volatile uint32_t*)fadt->pm1a_event_block;
+    }
+
 }
