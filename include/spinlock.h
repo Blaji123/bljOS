@@ -49,11 +49,11 @@ namespace bljOS{
     typedef struct{
         bljOS::common::int64_t cnt;
     }SpinlockCnt;
-
-    void spinlockCntReadAcquire(SpinlockCnt* lock);
-    void spinlockCntReadRelease(SpinlockCnt* lock);
-    void spinlockCntWriteAcquire(SpinlockCnt* lock);
-    void spinlockCntWriteRelease(SpinlockCnt* lock);
 }
+
+void spinlockCntReadAcquire(bljOS::SpinlockCnt* lock);
+void spinlockCntReadRelease(bljOS::SpinlockCnt* lock);
+void spinlockCntWriteAcquire(bljOS::SpinlockCnt* lock);
+void spinlockCntWriteRelease(bljOS::SpinlockCnt* lock);
 
 #endif

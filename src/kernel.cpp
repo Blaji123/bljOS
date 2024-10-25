@@ -20,7 +20,6 @@
 #include <net/icmp.h>
 #include <net/udp.h>
 #include <net/tcp.h>
-#include <filesystem/msdospart.h>
 #include <common/multiboot.h>
 #include <drivers/rtc.h>
 #include <gui/button.h>
@@ -31,6 +30,8 @@
 #include <spinlock.h>
 #include <datastructures/bitmap.h>
 #include <drivers/acpi.h>
+#include <datastructures/linkedlist.h>
+#include <common/string.h>
 
 using namespace bljOS;
 using namespace bljOS::common;
@@ -265,7 +266,6 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     InterruptManager interrupts(0x20, &gdt, &taskManager);
 
 
-
     SyscallHandler syscalls(&interrupts, 0x80);
 
     DriverManager drvManager;
@@ -293,19 +293,7 @@ extern "C" void kernelMain(void* multibootStructure, uint32_t magicNumber){
     drvManager.ActivateAll();
 
     MBR_PARTITION_TABLE mbr_partition_table((AdvancedHostControllerInterface*)(drvManager.drivers[4]));
-
-    /*testing ata & fat32 */
-    /*
-    AdvancedTechnologyAttachment ata0m(0x1F0, true);
-    ata0m.Identify();
-    AdvancedTechnologyAttachment ata0s(0x1F0, false);
-    ata0s.Identify();
-
-    MSDOSPartitionTable::ReadPartitions(&ata0s);
-
-    AdvancedTechnologyAttachment ata1m(0x170, true);
-    AdvancedTechnologyAttachment ata1s(0x170, false);
-    */
+    VirtualFileSystemController vfs(&taskManager, &mbr_partition_table);
 
     uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
     uint32_t ip_be = ((uint32_t)ip4 << 24) | ((uint32_t)ip3 << 16) | ((uint32_t)ip2 << 8) | ((uint32_t)ip1);

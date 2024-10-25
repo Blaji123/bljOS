@@ -5,8 +5,10 @@
 #include <drivers/disk.h>
 #include <common/linux.h>
 #include <spinlock.h>
-#include <multitasking.h>
 #include <memorymanagement.h>
+#include <datastructures/linkedlist.h>
+#include <multitasking.h>
+#include <common/string.h>
 
 #define FS_MODE_READ 0x01
 #define FS_MODE_WRITE 0x02
@@ -45,6 +47,14 @@
 #define SEEK_CURR 1 // current + offset
 #define SEEK_END 2  // end + offset
 
+#define ELOOP 40
+#define ENOSYS 38
+#define FASYNC 00020000
+#define EBADF 9
+#define ESPIPE 29
+#define EINVAL 22
+#define EROFS 30
+
 namespace bljOS{
     namespace filesystem{
 
@@ -67,7 +77,7 @@ namespace bljOS{
         typedef bljOS::common::size_t (*SpecialMmapHandler)(bljOS::common::size_t addr, bljOS::common::size_t length, int prot, int flags, OpenFile* fd, bljOS::common::size_t pgoffset);
         typedef bool (*SpecialDuplicate)(OpenFile* original, OpenFile* orphan);
         typedef int (*SpecialGetdents64)(OpenFile* fd, struct bljOS::common::linux_dirent64* dirp, unsigned int count);
-        typedef bool (*SpecialOpen)(char* filename, OpenFile* fd, char** symlinkResolve);
+        typedef bool (*SpecialOpen)(char* filename,int flags, int mode, OpenFile* fd, char** symlinkResolve);
         typedef bool (*SpecialClose)(OpenFile* fd);
         typedef bljOS::common::size_t (*SpecialGetFilesize)(OpenFile* fd);
 
@@ -133,14 +143,17 @@ namespace bljOS{
 
         class VirtualFileSystemController{
             MountPoint* firstMountPoint;
+            TaskManager* taskManager;
+            bljOS::drivers::MBR_PARTITION_TABLE* mbr;
+            bool systemDiskInit = false;
         public:
-            VirtualFileSystemController();
+            VirtualFileSystemController(TaskManager* taskManager, bljOS::drivers::MBR_PARTITION_TABLE* mbr);
 
             OpenFile* fsKernelOpen(char* filename, int flags, bljOS::common::uint32_t mode);
             bool fsKernelClose(OpenFile* file);
-            int fsUserOpen(void* task, char* path, char* buf, int size);
+            int fsUserOpen(void* task, char* filename, int flags, int mode);
             int fsUserClose(void* task, int fd);
-            int fsUserSeek(void* task, bljOS::common::uint32_t fs, int offset, int whence);
+            int fsUserSeek(void* task, bljOS::common::uint32_t fd, int offset, int whence);
             OpenFile* fsUserGetNode(void* task, int fd);
             OpenFile* fsUserDuplicateNode(void* taskPtr, OpenFile* original);
             OpenFile* fsUserDuplicateNodeUnsafe(OpenFile* original);
@@ -162,6 +175,7 @@ namespace bljOS{
             bool fsUnmount(MountPoint* mnt);
             MountPoint* fsDetermineMountPoint(char* filename);
             char* fsResolveSymlink(MountPoint* mnt, char* symlink);
+            bool isFat(bljOS::drivers::MBR_PARTITION* mbr_partition);
         };
     }
 }

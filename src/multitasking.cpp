@@ -5,7 +5,7 @@ using namespace bljOS::common;
 
 void printf(uint8_t* str, int32_t x, int32_t y, uint32_t color);
 
-SpinlockCnt TASK_LL_MODIFY = {0};
+extern SpinlockCnt TASK_LL_MODIFY = {0};
 
 void Task::taskAttachDefTermios(Task *task){
   memset(&task->term, 0, sizeof(termios));
@@ -33,7 +33,7 @@ void Task::taskAttachDefTermios(Task *task){
   }
 }
 
-Task::Task(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uint32_t rip, bool kernel_task, bljOS::common::uint32_t* pagedir, bljOS::common::uint32_t argc, char** argv){
+Task::Task(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uint32_t eip, bool kernel_task, bljOS::common::uint32_t* pagedir, bljOS::common::uint32_t argc, char** argv){
     cpustate->eax = 0;
     cpustate->ebx = 0;
     cpustate->ecx = 0;
@@ -43,7 +43,7 @@ Task::Task(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uint32_t rip, bool 
     cpustate->edi = 0;
     cpustate->ebp = 0;
 
-    cpustate->eip = rip;
+    cpustate->eip = eip;
     cpustate->cs = gdt->getCodeSegmentSelector();
     cpustate->eflags = 0x202;
 
@@ -56,7 +56,7 @@ Task::Task(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uint32_t rip, bool 
     registers.usermode_esp = USER_STACK_BOTTOM;
 
     registers.eflags = 0x202;
-    registers.eip = rip;
+    registers.eip = eip;
 
     this->id = id;
     this->kernel_task = kernel_task;
@@ -91,7 +91,7 @@ TaskManager::~TaskManager(){
 }
 
 Task* TaskManager::addTask(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uint32_t rip, bool kernel_task, bljOS::common::uint32_t* pagedir, bljOS::common::uint32_t argc, char** argv){
-//     spinlockCntWriteAcquire(&TASK_LL_MODIFY);
+    spinlockCntWriteAcquire(&TASK_LL_MODIFY);
     Task* browse = firstTask;
 
     while(browse){
@@ -103,7 +103,7 @@ Task* TaskManager::addTask(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uin
     if(!browse)
         printf((uint8_t*)"error", 20, 20, 0xebdbb2);
 
-//     spinlockCntWriteRelease(&TASK_LL_MODIFY);
+    spinlockCntWriteRelease(&TASK_LL_MODIFY);
     Task* target = (Task*)MemoryManager::activeMemoryManager->malloc(sizeof(Task));
     memset(target, 0, sizeof(Task));
     browse->next = target;
@@ -112,6 +112,18 @@ Task* TaskManager::addTask(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uin
 
     return target;
 
+}
+
+Task* TaskManager::taskGet(uint32_t id){
+    spinlockCntWriteAcquire(&TASK_LL_MODIFY);
+    Task* browse = firstTask;
+    while(browse){
+        if(browse->id == id)
+            break;
+        browse = browse->next;
+    }
+    spinlockCntWriteRelease(&TASK_LL_MODIFY);
+    return browse;
 }
 
 CPUState* TaskManager::Schedule(CPUState* cpustate){

@@ -166,6 +166,11 @@
 #include <memorymanagement.h>
 
 namespace bljOS{
+
+    namespace filesystem{
+        struct OpenFile;
+    }
+
     struct CPUState{
         bljOS::common::uint32_t eax;
         bljOS::common::uint32_t ebx;
@@ -179,7 +184,9 @@ namespace bljOS{
 //         bljOS::common::uint32_t gs;
 //         bljOS::common::uint32_t fs;
 //         bljOS::common::uint32_t es;
-//         bljOS::common::uint32_t ds;
+        bljOS::common::uint32_t ds;
+        bljOS::common::uint32_t interrupt;
+
 
         bljOS::common::uint32_t error;
 
@@ -188,29 +195,10 @@ namespace bljOS{
         bljOS::common::uint32_t eflags;
         bljOS::common::uint32_t esp;
         bljOS::common::uint32_t ss;
-    } __attribute__((packed));
 
-    typedef struct{
-        bljOS::common::uint32_t ds; // & es
-
-        bljOS::common::uint32_t edi;
-        bljOS::common::uint32_t esi;
-        bljOS::common::uint32_t ebp;
-        bljOS::common::uint32_t esp;
-        bljOS::common::uint32_t ebx;
-        bljOS::common::uint32_t edx;
-        bljOS::common::uint32_t ecx;
-        bljOS::common::uint32_t eax;
-
-        bljOS::common::uint32_t interrupt;
-        bljOS::common::uint32_t error;
-
-        bljOS::common::uint32_t eip;
-        bljOS::common::uint32_t cs;
-        bljOS::common::uint32_t eflags;
         bljOS::common::uint32_t usermode_esp;
         bljOS::common::uint32_t usermode_ss;
-    }AsmPassedInterrupt;
+    } __attribute__((packed));
 
     typedef struct termios{
         bljOS::common::uint32_t c_iflag;    /* input mode flags */
@@ -253,7 +241,7 @@ namespace bljOS{
 
         bljOS::common::uint32_t waitingForPid;
 
-        AsmPassedInterrupt registers;
+        CPUState registers;
         bljOS::common::uint32_t* pagedir;
         bljOS::common::uint32_t whileTssRsp;
         bljOS::common::uint32_t whilwSyscallRsp;
@@ -261,7 +249,7 @@ namespace bljOS{
         bool systemCallInProgress;
         bool schedPageFault;
 
-        AsmPassedInterrupt* syscallRegs;
+        CPUState* syscallRegs;
         bljOS::common::uint32_t syscallRsp;
 
         bljOS::common::uint32_t fsbase;
@@ -276,11 +264,7 @@ namespace bljOS{
         termios term;
         bljOS::common::uint32_t tmpRecV;
 
-        char* cwd;
         bljOS::common::uint32_t umask;
-
-        SpinlockCnt WLOCK_FILES;
-//         bljOS::filesystem::OpenFile* firstFile;
 
         __attribute__((aligned(16))) bljOS::common::uint8_t fpuenv[512];
         bljOS::common::uint32_t mxcsr;
@@ -294,14 +278,16 @@ namespace bljOS{
         Task* parent;
         Task* next;
     public:
-        Task(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uint32_t rip, bool kernel_task, bljOS::common::uint32_t* pagedir, bljOS::common::uint32_t argc, char** argv);
+
+        SpinlockCnt WLOCK_FILES;
+        bljOS::filesystem::OpenFile* firstFile;
+        char* cwd;
+
+        Task(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uint32_t eip, bool kernel_task, bljOS::common::uint32_t* pagedir, bljOS::common::uint32_t argc, char** argv);
         ~Task();
 
         void taskAttachDefTermios(Task *task);
     };
-
-    SpinlockCnt TASK_LL_MODIFY;
-
 
     class TaskManager{
     protected:
@@ -311,8 +297,11 @@ namespace bljOS{
         TaskManager();
         ~TaskManager();
         Task* addTask(bljOS::GlobalDescriptorTable* gdt, bljOS::common::uint32_t rip, bool kernel_task, bljOS::common::uint32_t* pagedir, bljOS::common::uint32_t argc, char** argv);
+        Task* taskGet(bljOS::common::uint32_t id);
         CPUState* Schedule(CPUState* cpustate);
     };
 }
+
+extern bljOS::SpinlockCnt TASK_LL_MODIFY;
 
 #endif

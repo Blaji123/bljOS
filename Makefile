@@ -10,6 +10,7 @@ objects = obj/kernel.o \
 	  obj/multitasking.o \
 	  obj/syscalls.o \
 	  obj/spinlock.o \
+	  obj/common/string.o \
 	  obj/hardwarecommunication/interrupts.o \
 	  obj/hardwarecommunication/port.o \
 	  obj/hardwarecommunication/interruptstubs.o \
@@ -36,9 +37,9 @@ objects = obj/kernel.o \
 	  obj/net/udp.o \
 	  obj/net/tcp.o \
 	  obj/filesystem/fat32.o \
-	  obj/filesystem/msdospart.o \
 	  obj/filesystem/vfs.o \
 	  obj/datastructures/bitmap.o \
+	  obj/datastructures/linkedlist.o \
 
 obj/%.o: src/%.cpp
 	mkdir -p $(@D)
