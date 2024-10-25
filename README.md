@@ -48,7 +48,7 @@
 
 ## Tech Stack
 
-**C**, **GAS Assembly**, **Makefile**
+**C++**, **GAS Assembly**, **Makefile**
 
 ## Installation
 
